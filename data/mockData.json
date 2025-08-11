@@ -1,0 +1,338 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "john.doe@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phone": "+1-555-0123",
+      "city": "New York",
+      "country": "USA",
+      "profileImage": "/man-profile.png",
+      "bio": "Passionate traveler exploring the world one city at a time.",
+      "totalTrips": 12,
+      "countriesVisited": 8,
+      "totalBudget": 25000,
+      "sharedPlans": 3
+    },
+    {
+      "id": 2,
+      "email": "jane.smith@example.com",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "phone": "+1-555-0124",
+      "city": "Los Angeles",
+      "country": "USA",
+      "profileImage": "/woman-profile.png",
+      "bio": "Adventure seeker and culture enthusiast.",
+      "totalTrips": 8,
+      "countriesVisited": 5,
+      "totalBudget": 18000,
+      "sharedPlans": 2
+    }
+  ],
+  "trips": [
+    {
+      "id": 1,
+      "userId": 1,
+      "name": "European Adventure",
+      "description": "Exploring the best of Europe with friends",
+      "startDate": "2024-06-15",
+      "endDate": "2024-06-30",
+      "coverImage": "/paris-eiffel-tower.png",
+      "totalBudget": 3500,
+      "spent": 0,
+      "status": "upcoming",
+      "isPublic": true,
+      "destinationCount": 5,
+      "shareToken": "euro-adventure-2024"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "name": "Tokyo Discovery",
+      "description": "Cultural immersion in Japan",
+      "startDate": "2024-03-10",
+      "endDate": "2024-03-20",
+      "coverImage": "/tokyo-skyline-night.png",
+      "totalBudget": 2800,
+      "spent": 1200,
+      "status": "ongoing",
+      "isPublic": false,
+      "destinationCount": 3,
+      "shareToken": "tokyo-discovery-2024"
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "name": "Bali Retreat",
+      "description": "Relaxation and wellness in paradise",
+      "startDate": "2024-01-05",
+      "endDate": "2024-01-15",
+      "coverImage": "/bali-temple.png",
+      "totalBudget": 1800,
+      "spent": 1800,
+      "status": "completed",
+      "isPublic": true,
+      "destinationCount": 2,
+      "shareToken": "bali-retreat-2024"
+    }
+  ],
+  "cities": [
+    {
+      "id": 1,
+      "name": "Paris",
+      "country": "France",
+      "region": "Europe",
+      "costIndex": 85,
+      "popularityScore": 95,
+      "imageUrl": "/paris-eiffel-tower.png",
+      "description": "The City of Light, famous for its art, fashion, and cuisine",
+      "rating": 4.8,
+      "travelers": "2.3M",
+      "latitude": 48.8566,
+      "longitude": 2.3522
+    },
+    {
+      "id": 2,
+      "name": "Tokyo",
+      "country": "Japan",
+      "region": "Asia",
+      "costIndex": 78,
+      "popularityScore": 92,
+      "imageUrl": "/tokyo-skyline-night.png",
+      "description": "A vibrant metropolis blending tradition and modernity",
+      "rating": 4.7,
+      "travelers": "1.8M",
+      "latitude": 35.6762,
+      "longitude": 139.6503
+    },
+    {
+      "id": 3,
+      "name": "Bali",
+      "country": "Indonesia",
+      "region": "Asia",
+      "costIndex": 45,
+      "popularityScore": 88,
+      "imageUrl": "/bali-temple.png",
+      "description": "Tropical paradise with stunning beaches and rich culture",
+      "rating": 4.6,
+      "travelers": "1.2M",
+      "latitude": -8.3405,
+      "longitude": 115.092
+    },
+    {
+      "id": 4,
+      "name": "Santorini",
+      "country": "Greece",
+      "region": "Europe",
+      "costIndex": 70,
+      "popularityScore": 85,
+      "imageUrl": "/santorini-sunset.png",
+      "description": "Iconic Greek island with white-washed buildings and blue domes",
+      "rating": 4.9,
+      "travelers": "800K",
+      "latitude": 36.3932,
+      "longitude": 25.4615
+    },
+    {
+      "id": 5,
+      "name": "Dubai",
+      "country": "UAE",
+      "region": "Middle East",
+      "costIndex": 75,
+      "popularityScore": 82,
+      "imageUrl": "/dubai-skyline.png",
+      "description": "Modern city of luxury, innovation, and desert adventures",
+      "rating": 4.5,
+      "travelers": "1.5M",
+      "latitude": 25.2048,
+      "longitude": 55.2708
+    },
+    {
+      "id": 6,
+      "name": "Reykjavik",
+      "country": "Iceland",
+      "region": "Europe",
+      "costIndex": 95,
+      "popularityScore": 75,
+      "imageUrl": "/iceland-northern-lights.png",
+      "description": "Gateway to Iceland's natural wonders and Northern Lights",
+      "rating": 4.4,
+      "travelers": "400K",
+      "latitude": 64.1466,
+      "longitude": -21.9426
+    }
+  ],
+  "activities": [
+    {
+      "id": 1,
+      "cityId": 1,
+      "name": "Eiffel Tower Visit",
+      "description": "Iconic tower with panoramic city views",
+      "category": "Sightseeing",
+      "cost": 25,
+      "durationHours": 2,
+      "rating": 4.8,
+      "imageUrl": "/paris-eiffel-tower.png"
+    },
+    {
+      "id": 2,
+      "cityId": 1,
+      "name": "Louvre Museum",
+      "description": "World's largest art museum",
+      "category": "Culture",
+      "cost": 17,
+      "durationHours": 4,
+      "rating": 4.7,
+      "imageUrl": "/placeholder.svg?height=200&width=300"
+    },
+    {
+      "id": 3,
+      "cityId": 2,
+      "name": "Senso-ji Temple",
+      "description": "Ancient Buddhist temple in Asakusa",
+      "category": "Culture",
+      "cost": 0,
+      "durationHours": 2,
+      "rating": 4.6,
+      "imageUrl": "/placeholder.svg?height=200&width=300"
+    },
+    {
+      "id": 4,
+      "cityId": 2,
+      "name": "Tokyo Skytree",
+      "description": "Tallest structure in Japan with observation decks",
+      "category": "Sightseeing",
+      "cost": 20,
+      "durationHours": 2,
+      "rating": 4.5,
+      "imageUrl": "/tokyo-skyline-night.png"
+    },
+    {
+      "id": 5,
+      "cityId": 3,
+      "name": "Uluwatu Temple",
+      "description": "Clifftop temple with ocean views",
+      "category": "Culture",
+      "cost": 5,
+      "durationHours": 3,
+      "rating": 4.7,
+      "imageUrl": "/bali-temple.png"
+    },
+    {
+      "id": 6,
+      "cityId": 3,
+      "name": "Bali Spa Experience",
+      "description": "Traditional Balinese massage and wellness",
+      "category": "Wellness",
+      "cost": 50,
+      "durationHours": 3,
+      "rating": 4.8,
+      "imageUrl": "/placeholder.svg?height=200&width=300"
+    }
+  ],
+  "tripStops": [
+    {
+      "id": 1,
+      "tripId": 1,
+      "cityId": 1,
+      "startDate": "2024-06-15",
+      "endDate": "2024-06-20",
+      "orderIndex": 1,
+      "budget": 1000,
+      "notes": "Start in Paris, explore the main attractions"
+    },
+    {
+      "id": 2,
+      "tripId": 1,
+      "cityId": 4,
+      "startDate": "2024-06-20",
+      "endDate": "2024-06-25",
+      "orderIndex": 2,
+      "budget": 800,
+      "notes": "Santorini for relaxation and sunset views"
+    },
+    {
+      "id": 3,
+      "tripId": 2,
+      "cityId": 2,
+      "startDate": "2024-03-10",
+      "endDate": "2024-03-20",
+      "orderIndex": 1,
+      "budget": 2800,
+      "notes": "Full Tokyo experience"
+    },
+    {
+      "id": 4,
+      "tripId": 3,
+      "cityId": 3,
+      "startDate": "2024-01-05",
+      "endDate": "2024-01-15",
+      "orderIndex": 1,
+      "budget": 1800,
+      "notes": "Wellness and relaxation focus"
+    }
+  ],
+  "tripActivities": [
+    {
+      "id": 1,
+      "tripStopId": 1,
+      "activityId": 1,
+      "scheduledDate": "2024-06-16",
+      "scheduledTime": "10:00",
+      "cost": 25,
+      "notes": "Morning visit to avoid crowds"
+    },
+    {
+      "id": 2,
+      "tripStopId": 1,
+      "activityId": 2,
+      "scheduledDate": "2024-06-17",
+      "scheduledTime": "14:00",
+      "cost": 17,
+      "notes": "Afternoon at the Louvre"
+    },
+    {
+      "id": 3,
+      "tripStopId": 3,
+      "activityId": 3,
+      "scheduledDate": "2024-03-12",
+      "scheduledTime": "09:00",
+      "cost": 0,
+      "notes": "Early morning temple visit"
+    },
+    {
+      "id": 4,
+      "tripStopId": 4,
+      "activityId": 5,
+      "scheduledDate": "2024-01-08",
+      "scheduledTime": "16:00",
+      "cost": 5,
+      "notes": "Sunset temple visit"
+    }
+  ],
+  "communityActivity": [
+    {
+      "id": 1,
+      "user": "Sarah Chen",
+      "action": "shared her Tokyo adventure",
+      "time": "2 hours ago",
+      "avatar": "/woman-profile.png"
+    },
+    {
+      "id": 2,
+      "user": "Mike Johnson",
+      "action": "completed European tour",
+      "time": "5 hours ago",
+      "avatar": "/man-profile.png"
+    },
+    {
+      "id": 3,
+      "user": "Emma Wilson",
+      "action": "started planning Bali trip",
+      "time": "1 day ago",
+      "avatar": "/woman-profile-two.png"
+    }
+  ]
+}

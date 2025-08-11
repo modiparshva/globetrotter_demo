@@ -79,7 +79,7 @@ export default function MyTrips() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Indian Adventures 🇮🇳</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Indian Adventures</h1>
             <p className="text-muted-foreground">Manage and organize your incredible India journeys</p>
           </div>
           <Button

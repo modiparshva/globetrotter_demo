@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { getUsers, getTrips, getCities, getCommunityActivity, getTripsByUserId } from "@/lib/data"
+import DestinationCarousel from "@/components/destination-carousel"
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -36,25 +37,44 @@ export default function Dashboard() {
   const recentActivities = getCommunityActivity()
 
   // INR formatter
-  const formatINR = useMemo(() => 
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }), []
+  const formatINR = useMemo(
+    () =>
+      new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }),
+    [],
   )
 
-  const formatNumber = useMemo(() => 
-    new Intl.NumberFormat("en-IN"), []
-  )
+  const formatNumber = useMemo(() => new Intl.NumberFormat("en-IN"), [])
 
   // Prioritize Indian destinations
   const popularDestinations = useMemo(() => {
-    const indianCities = cities.filter(city => 
-      city.country === "India" || 
-      ["Mumbai", "Delhi", "New Delhi", "Bengaluru", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Goa", "Kochi", "Varanasi", "Udaipur", "Amritsar", "Rishikesh", "Manali", "Shimla", "Agra"].some(indianCity => 
-        city.name.toLowerCase().includes(indianCity.toLowerCase())
-      )
+    const indianCities = cities.filter(
+      (city) =>
+        city.country === "India" ||
+        [
+          "Mumbai",
+          "Delhi",
+          "New Delhi",
+          "Bengaluru",
+          "Bangalore",
+          "Hyderabad",
+          "Chennai",
+          "Kolkata",
+          "Pune",
+          "Jaipur",
+          "Goa",
+          "Kochi",
+          "Varanasi",
+          "Udaipur",
+          "Amritsar",
+          "Rishikesh",
+          "Manali",
+          "Shimla",
+          "Agra",
+        ].some((indianCity) => city.name.toLowerCase().includes(indianCity.toLowerCase())),
     )
     const finalCities = indianCities.length >= 4 ? indianCities : [...indianCities, ...cities]
     return finalCities.slice(0, 4)
@@ -80,7 +100,7 @@ export default function Dashboard() {
     // This will be calculated from actual trip data via Prisma later
     // For now, simulate based on existing data
     const uniqueDestinations = new Set()
-    userTrips.forEach(trip => {
+    userTrips.forEach((trip) => {
       // Simulate extracting states/countries from trip destinations
       uniqueDestinations.add(trip.name) // Placeholder logic
     })
@@ -94,9 +114,7 @@ export default function Dashboard() {
         <section className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                नमस्ते {currentUser.firstName}!
-              </h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">नमस्ते {currentUser.firstName}!</h2>
               <p className="text-lg text-muted-foreground">
                 Ready to explore incredible India? From Kashmir to Kanyakumari, let's plan your perfect journey.
               </p>
@@ -111,8 +129,24 @@ export default function Dashboard() {
               </Button>
             </Link>
           </div>
+        </section>
 
-          {/* Quick Stats - India focused */}
+        {/* Featured Destinations Carousel section */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-semibold">Featured Destinations</h3>
+            <Link href="/search/cities">
+              <Button variant="outline" size="sm">
+                <Globe className="w-4 h-4 mr-1" />
+                Explore All
+              </Button>
+            </Link>
+          </div>
+          <DestinationCarousel />
+        </section>
+
+        {/* Quick Stats - India focused */}
+        <section className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <CardContent className="p-4">
@@ -230,13 +264,16 @@ export default function Dashboard() {
                             <div className="flex justify-between text-sm">
                               <span>Budget Progress</span>
                               <span>
-                                {formatINR.format((trip.spent || 0) * 83)} / {formatINR.format((trip.totalBudget || 0) * 83)}
+                                {formatINR.format((trip.spent || 0) * 83)} /{" "}
+                                {formatINR.format((trip.totalBudget || 0) * 83)}
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-gradient-to-r from-blue-500 to-orange-500 h-2 rounded-full"
-                                style={{ width: `${Math.min(((trip.spent || 0) / Math.max(trip.totalBudget || 1, 1)) * 100, 100)}%` }}
+                                style={{
+                                  width: `${Math.min(((trip.spent || 0) / Math.max(trip.totalBudget || 1, 1)) * 100, 100)}%`,
+                                }}
                               />
                             </div>
                           </div>

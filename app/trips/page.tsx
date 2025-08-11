@@ -8,65 +8,55 @@ import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/c
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, Plus, Calendar, MapPin, MoreHorizontal, Edit, Eye, Trash2, Filter, SortAsc } from "lucide-react"
-
-interface Trip {
-  id: number
-  name: string
-  startDate: string
-  endDate: string
-  status: "ongoing" | "upcoming" | "completed"
-  destinationCount: number
-  coverImage?: string
-  totalBudget: number
-  description: string
-}
-
-const mockTrips: Trip[] = [
-  {
-    id: 1,
-    name: "European Adventure",
-    startDate: "2024-06-15",
-    endDate: "2024-06-30",
-    status: "upcoming",
-    destinationCount: 5,
-    coverImage: "/paris-eiffel-tower.png",
-    totalBudget: 3500,
-    description: "Exploring the best of Europe",
-  },
-  {
-    id: 2,
-    name: "Tokyo Discovery",
-    startDate: "2024-03-10",
-    endDate: "2024-03-20",
-    status: "ongoing",
-    destinationCount: 3,
-    coverImage: "/tokyo-skyline-night.png",
-    totalBudget: 2800,
-    description: "Cultural immersion in Japan",
-  },
-  {
-    id: 3,
-    name: "Bali Retreat",
-    startDate: "2024-01-05",
-    endDate: "2024-01-15",
-    status: "completed",
-    destinationCount: 2,
-    coverImage: "/bali-temple.png",
-    totalBudget: 1800,
-    description: "Relaxation and wellness",
-  },
-]
+import { Search, Plus, Calendar, MapPin, MoreHorizontal, Edit, Eye, Trash2, Filter, SortAsc, Loader2 } from "lucide-react"
+import { useTrips } from "@/hooks/use-trips"
+import { useAuth } from "@/hooks/use-auth"
+import { Trip } from "@/lib/trips"
 
 export default function MyTrips() {
-  const [trips, setTrips] = useState<Trip[]>(mockTrips)
+  const { user, isLoading: isAuthLoading } = useAuth()
+  const { trips, isLoadingTrips, deleteTrip } = useTrips()
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
 
-  const filteredTrips = trips.filter((trip) => {
+  // Show loading state
+  if (isAuthLoading || isLoadingTrips) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-muted-foreground">Loading your trips...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Please sign in</h3>
+            <p className="text-gray-600 mb-4">You need to be signed in to view your trips.</p>
+            <Button asChild>
+              <Link href="/auth/signin">Sign In</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const filteredTrips = (trips || []).filter((trip) => {
     const matchesSearch =
       trip.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.description.toLowerCase().includes(searchQuery.toLowerCase())
+      trip.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (activeTab === "all") return matchesSearch
     return matchesSearch && trip.status === activeTab
@@ -76,7 +66,7 @@ export default function MyTrips() {
     switch (status) {
       case "ongoing":
         return "bg-green-100 text-green-800"
-      case "upcoming":
+      case "planning":
         return "bg-blue-100 text-blue-800"
       case "completed":
         return "bg-gray-100 text-gray-800"
@@ -89,6 +79,12 @@ export default function MyTrips() {
     const start = new Date(startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })
     const end = new Date(endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     return `${start} - ${end}`
+  }
+
+  const handleDeleteTrip = async (tripId: string) => {
+    if (window.confirm("Are you sure you want to delete this trip?")) {
+      await deleteTrip(tripId)
+    }
   }
 
   return (
@@ -138,8 +134,8 @@ export default function MyTrips() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
             <TabsTrigger value="all">All Trips</TabsTrigger>
+            <TabsTrigger value="planning">Planning</TabsTrigger>
             <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
             <TabsTrigger value="completed">Completed</TabsTrigger>
           </TabsList>
 
@@ -161,10 +157,10 @@ export default function MyTrips() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredTrips.map((trip) => (
-                  <Card key={trip.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <Card key={trip.$id} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="relative">
                       <img
-                        src={trip.coverImage || "/placeholder.svg?height=200&width=400"}
+                        src={trip.image || "/placeholder.svg?height=200&width=400"}
                         alt={trip.name}
                         className="w-full h-48 object-cover"
                       />
@@ -177,18 +173,21 @@ export default function MyTrips() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/trips/${trip.id}`}>
+                              <Link href={`/trips/${trip.$id}`}>
                                 <Eye className="w-4 h-4 mr-2" />
                                 View
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/trips/${trip.id}/edit`}>
+                              <Link href={`/trips/${trip.$id}/edit`}>
                                 <Edit className="w-4 h-4 mr-2" />
                                 Edit
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem 
+                              className="text-red-600"
+                              onClick={() => handleDeleteTrip(trip.$id)}
+                            >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -213,22 +212,22 @@ export default function MyTrips() {
                         </div>
                         <div className="flex items-center">
                           <MapPin className="w-4 h-4 mr-2" />
-                          {trip.destinationCount} destinations
+                          {trip.destination}
                         </div>
                         <div className="flex items-center justify-between">
-                          <span>Budget: ${trip.totalBudget.toLocaleString()}</span>
+                          <span>Budget: ${trip.budget.toLocaleString()}</span>
                         </div>
                       </div>
 
                       <div className="flex gap-2 mt-4">
                         <Button size="sm" variant="outline" className="flex-1 bg-transparent" asChild>
-                          <Link href={`/trips/${trip.id}`}>
+                          <Link href={`/trips/${trip.$id}`}>
                             <Eye className="w-4 h-4 mr-1" />
                             View
                           </Link>
                         </Button>
                         <Button size="sm" variant="outline" className="flex-1 bg-transparent" asChild>
-                          <Link href={`/trips/${trip.id}/edit`}>
+                          <Link href={`/trips/${trip.$id}/edit`}>
                             <Edit className="w-4 h-4 mr-1" />
                             Edit
                           </Link>

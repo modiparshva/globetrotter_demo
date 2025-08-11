@@ -95,7 +95,7 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                नमस्ते {currentUser.firstName}! 🇮🇳
+                नमस्ते {currentUser.firstName}!
               </h2>
               <p className="text-lg text-muted-foreground">
                 Ready to explore incredible India? From Kashmir to Kanyakumari, let's plan your perfect journey.

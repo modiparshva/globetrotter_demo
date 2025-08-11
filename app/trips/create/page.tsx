@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +27,15 @@ export default function CreateTrip() {
   const [success, setSuccess] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  // INR formatter
+  const formatINR = useMemo(() => 
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }), []
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -79,7 +88,7 @@ export default function CreateTrip() {
         startDate: formData.startDate,
         endDate: formData.endDate,
         coverImage: formData.coverImage || "/diverse-travel-destinations.png",
-        totalBudget: formData.totalBudget ? Number(formData.totalBudget) : 0,
+        totalBudget: formData.totalBudget ? Number(formData.totalBudget) : 0, // Already in INR
         spent: 0,
         status: "planning",
         isPublic: formData.isPublic,
@@ -101,8 +110,18 @@ export default function CreateTrip() {
     }
   }
 
-  // Get popular destinations for suggestions
-  const popularCities = getCities().slice(0, 6)
+  // Get popular Indian destinations for suggestions
+  const cities = getCities()
+  const popularCities = useMemo(() => {
+    const indianCities = cities.filter(city => 
+      city.country === "India" || 
+      ["Mumbai", "Delhi", "New Delhi", "Bengaluru", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Goa", "Kochi", "Varanasi", "Udaipur", "Amritsar", "Rishikesh", "Manali", "Shimla", "Agra", "Jodhpur"].some(indianCity => 
+        city.name.toLowerCase().includes(indianCity.toLowerCase())
+      )
+    )
+    const finalCities = indianCities.length >= 6 ? indianCities : [...indianCities, ...cities]
+    return finalCities.slice(0, 6)
+  }, [cities])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
@@ -116,8 +135,8 @@ export default function CreateTrip() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Plan a New Trip</h1>
-            <p className="text-muted-foreground mt-1">Start your next adventure</p>
+            <h1 className="text-3xl font-bold text-gray-900">Plan Your Indian Adventure</h1>
+            <p className="text-muted-foreground mt-1">Start exploring incredible India 🇮🇳</p>
           </div>
         </div>
 
@@ -128,7 +147,7 @@ export default function CreateTrip() {
                 <MapPin className="w-5 h-5 mr-2" />
                 Trip Details
               </CardTitle>
-              <CardDescription>Provide basic information about your upcoming trip</CardDescription>
+              <CardDescription>Plan your journey across India - from mountains to beaches</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -151,7 +170,7 @@ export default function CreateTrip() {
                   <Input
                     id="name"
                     name="name"
-                    placeholder="e.g., European Adventure 2024"
+                    placeholder="e.g., Golden Triangle Tour, Kerala Backwaters, Rajasthan Heritage"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -194,23 +213,26 @@ export default function CreateTrip() {
                   </div>
                 </div>
 
-                {/* Budget */}
+                {/* Budget in INR */}
                 <div className="space-y-2">
-                  <Label htmlFor="totalBudget">Total Budget (Optional)</Label>
+                  <Label htmlFor="totalBudget">Total Budget in INR (Optional)</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">$</span>
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₹</span>
                     <Input
                       id="totalBudget"
                       name="totalBudget"
                       type="number"
-                      placeholder="0"
+                      placeholder="25000"
                       value={formData.totalBudget}
                       onChange={handleInputChange}
                       className="pl-8"
                       min="0"
-                      step="1"
+                      step="500"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Typical India trips: Weekend getaway ₹5,000-15,000 | Week-long tour ₹25,000-75,000
+                  </p>
                 </div>
 
                 {/* Trip Description */}
@@ -219,7 +241,7 @@ export default function CreateTrip() {
                   <Textarea
                     id="description"
                     name="description"
-                    placeholder="Describe your trip goals, interests, or any special occasions..."
+                    placeholder="Describe your trip - adventure, culture, spiritual journey, family vacation, honeymoon, or any special interests..."
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={4}
@@ -232,7 +254,7 @@ export default function CreateTrip() {
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
                     <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-sm text-gray-600 mb-2">Upload a cover photo for your trip</p>
-                    <p className="text-xs text-gray-500 mb-4">We'll use a default image if none is provided</p>
+                    <p className="text-xs text-gray-500 mb-4">We'll use a beautiful Indian destination image if none is provided</p>
                     <Button type="button" variant="outline" size="sm" disabled>
                       Choose File (Coming Soon)
                     </Button>
@@ -250,30 +272,38 @@ export default function CreateTrip() {
                     className="rounded border-gray-300"
                   />
                   <Label htmlFor="isPublic" className="text-sm">
-                    Make this trip public (others can view and get inspired)
+                    Make this trip public (help others discover amazing Indian destinations)
                   </Label>
                 </div>
 
-                {/* Popular Destinations Suggestions */}
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-blue-900 mb-3">Popular Destinations to Consider</h3>
+                {/* Popular Indian Destinations Suggestions */}
+                <div className="bg-gradient-to-r from-orange-50 to-green-50 p-4 rounded-lg border border-orange-200">
+                  <h3 className="font-medium text-orange-900 mb-3 flex items-center">
+                    🇮🇳 Popular Indian Destinations to Consider
+                  </h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {popularCities.map((city) => (
                       <div
                         key={city.id}
-                        className="bg-white p-3 rounded border border-blue-200 text-center hover:shadow-sm transition-shadow cursor-pointer"
+                        className="bg-white p-3 rounded border border-orange-200 text-center hover:shadow-sm transition-shadow cursor-pointer group"
+                        title={`Cost Index: ${city.costIndex}, Rating: ${city.rating}`}
                       >
                         <img
                           src={city.imageUrl || "/placeholder.svg"}
                           alt={city.name}
-                          className="w-full h-16 object-cover rounded mb-2"
+                          className="w-full h-16 object-cover rounded mb-2 group-hover:scale-105 transition-transform duration-200"
                         />
                         <p className="text-sm font-medium text-gray-900">{city.name}</p>
-                        <p className="text-xs text-gray-600">{city.country}</p>
+                        <p className="text-xs text-gray-600">{city.country || "India"}</p>
+                        <div className="flex items-center justify-center mt-1 text-xs text-yellow-600">
+                          ⭐ {city.rating} • ₹{city.costIndex}
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-blue-700 mt-3">You can add destinations to your trip after creating it</p>
+                  <p className="text-xs text-orange-700 mt-3 flex items-center">
+                    💡 You can add specific destinations and create detailed itinerary after creating your trip
+                  </p>
                 </div>
 
                 <div className="flex gap-4 pt-4">
@@ -283,7 +313,7 @@ export default function CreateTrip() {
                     disabled={isLoading}
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {isLoading ? "Creating Trip..." : "Create Trip & Continue"}
+                    {isLoading ? "Creating Your Trip..." : "Create Trip & Start Planning"}
                   </Button>
                   <Button type="button" variant="outline" asChild>
                     <Link href="/dashboard">Cancel</Link>

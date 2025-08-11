@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -26,15 +26,66 @@ import { getUsers, getTrips, getCities, getCommunityActivity, getTripsByUserId }
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
 
-  // Get data from JSON
+  // Get data from JSON (later replace with Prisma)
   const users = getUsers()
   const currentUser = users[0] // Simulate logged in user
   const allTrips = getTrips()
   const userTrips = getTripsByUserId(currentUser.id)
   const upcomingTrips = userTrips.filter((trip) => trip.status === "upcoming" || trip.status === "planning")
   const cities = getCities()
-  const popularDestinations = cities.slice(0, 4) // Get first 4 cities
   const recentActivities = getCommunityActivity()
+
+  // INR formatter
+  const formatINR = useMemo(() => 
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }), []
+  )
+
+  const formatNumber = useMemo(() => 
+    new Intl.NumberFormat("en-IN"), []
+  )
+
+  // Prioritize Indian destinations
+  const popularDestinations = useMemo(() => {
+    const indianCities = cities.filter(city => 
+      city.country === "India" || 
+      ["Mumbai", "Delhi", "New Delhi", "Bengaluru", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Goa", "Kochi", "Varanasi", "Udaipur", "Amritsar", "Rishikesh", "Manali", "Shimla", "Agra"].some(indianCity => 
+        city.name.toLowerCase().includes(indianCity.toLowerCase())
+      )
+    )
+    const finalCities = indianCities.length >= 4 ? indianCities : [...indianCities, ...cities]
+    return finalCities.slice(0, 4)
+  }, [cities])
+
+  // Dynamic calculations (will be replaced by Prisma aggregations)
+  const totalBudgetINR = useMemo(() => {
+    const sum = userTrips.reduce((acc, trip) => acc + (trip.totalBudget || 0), 0)
+    return sum > 0 ? sum * 83 : currentUser.totalBudget * 83 // Convert USD to INR (approximate rate)
+  }, [userTrips, currentUser.totalBudget])
+
+  const totalSpentINR = useMemo(() => {
+    const sum = userTrips.reduce((acc, trip) => acc + (trip.spent || 0), 0)
+    return sum * 83 // Convert USD to INR
+  }, [userTrips])
+
+  const avgTripCostINR = useMemo(() => {
+    const totalTrips = Math.max(userTrips.length || currentUser.totalTrips, 1)
+    return Math.round(totalBudgetINR / totalTrips)
+  }, [totalBudgetINR, userTrips.length, currentUser.totalTrips])
+
+  const statesVisited = useMemo(() => {
+    // This will be calculated from actual trip data via Prisma later
+    // For now, simulate based on existing data
+    const uniqueDestinations = new Set()
+    userTrips.forEach(trip => {
+      // Simulate extracting states/countries from trip destinations
+      uniqueDestinations.add(trip.name) // Placeholder logic
+    })
+    return Math.max(uniqueDestinations.size, currentUser.countriesVisited || 3)
+  }, [userTrips, currentUser.countriesVisited])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
@@ -43,9 +94,11 @@ export default function Dashboard() {
         <section className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {currentUser.firstName}! ✈️</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                नमस्ते {currentUser.firstName}! 🇮🇳
+              </h2>
               <p className="text-lg text-muted-foreground">
-                Ready to plan your next adventure? Let's make it unforgettable.
+                Ready to explore incredible India? From Kashmir to Kanyakumari, let's plan your perfect journey.
               </p>
             </div>
             <Link href="/trips/create">
@@ -59,14 +112,16 @@ export default function Dashboard() {
             </Link>
           </div>
 
-          {/* Quick Stats */}
+          {/* Quick Stats - India focused */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100">Total Trips</p>
-                    <p className="text-2xl font-bold">{currentUser.totalTrips}</p>
+                    <p className="text-2xl font-bold">
+                      {formatNumber.format(userTrips.length || currentUser.totalTrips)}
+                    </p>
                   </div>
                   <Plane className="w-8 h-8 text-blue-200" />
                 </div>
@@ -77,8 +132,8 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100">Countries Visited</p>
-                    <p className="text-2xl font-bold">{currentUser.countriesVisited}</p>
+                    <p className="text-green-100">States Visited</p>
+                    <p className="text-2xl font-bold">{formatNumber.format(statesVisited)}</p>
                   </div>
                   <Globe className="w-8 h-8 text-green-200" />
                 </div>
@@ -90,7 +145,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-orange-100">Total Budget</p>
-                    <p className="text-2xl font-bold">${currentUser.totalBudget.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">{formatINR.format(totalBudgetINR)}</p>
                   </div>
                   <Wallet className="w-8 h-8 text-orange-200" />
                 </div>
@@ -102,7 +157,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100">Shared Plans</p>
-                    <p className="text-2xl font-bold">{currentUser.sharedPlans}</p>
+                    <p className="text-2xl font-bold">{formatNumber.format(currentUser.sharedPlans)}</p>
                   </div>
                   <Users className="w-8 h-8 text-purple-200" />
                 </div>
@@ -116,7 +171,7 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-semibold">Upcoming Trips</h3>
+                <h3 className="text-2xl font-semibold">Your Upcoming Indian Adventures</h3>
                 <Link href="/trips">
                   <Button variant="outline" size="sm">
                     View All
@@ -129,7 +184,9 @@ export default function Dashboard() {
                   <Card className="p-8 text-center">
                     <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h4 className="text-lg font-medium text-gray-900 mb-2">No upcoming trips</h4>
-                    <p className="text-gray-600 mb-4">Start planning your next adventure!</p>
+                    <p className="text-gray-600 mb-4">
+                      Time to explore India! From the beaches of Goa to the mountains of Himachal Pradesh.
+                    </p>
                     <Link href="/trips/create">
                       <Button>
                         <Plus className="w-4 h-4 mr-2" />
@@ -155,8 +212,8 @@ export default function Dashboard() {
                               <div className="flex items-center text-muted-foreground mb-2">
                                 <Calendar className="w-4 h-4 mr-1" />
                                 <span className="text-sm">
-                                  {new Date(trip.startDate).toLocaleDateString()} -{" "}
-                                  {new Date(trip.endDate).toLocaleDateString()}
+                                  {new Date(trip.startDate).toLocaleDateString("en-IN")} -{" "}
+                                  {new Date(trip.endDate).toLocaleDateString("en-IN")}
                                 </span>
                               </div>
                               <div className="flex items-center text-muted-foreground">
@@ -173,13 +230,13 @@ export default function Dashboard() {
                             <div className="flex justify-between text-sm">
                               <span>Budget Progress</span>
                               <span>
-                                ${trip.spent.toLocaleString()} / ${trip.totalBudget.toLocaleString()}
+                                {formatINR.format((trip.spent || 0) * 83)} / {formatINR.format((trip.totalBudget || 0) * 83)}
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-gradient-to-r from-blue-500 to-orange-500 h-2 rounded-full"
-                                style={{ width: `${Math.min((trip.spent / trip.totalBudget) * 100, 100)}%` }}
+                                style={{ width: `${Math.min(((trip.spent || 0) / Math.max(trip.totalBudget || 1, 1)) * 100, 100)}%` }}
                               />
                             </div>
                           </div>
@@ -206,10 +263,10 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* Popular Destinations */}
+            {/* Popular Indian Destinations */}
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-semibold">Popular Destinations</h3>
+                <h3 className="text-2xl font-semibold">Popular Indian Destinations</h3>
                 <Link href="/search/cities">
                   <Button variant="outline" size="sm">
                     <TrendingUp className="w-4 h-4 mr-1" />
@@ -242,7 +299,7 @@ export default function Dashboard() {
                     </div>
                     <CardContent className="p-4">
                       <h4 className="font-semibold mb-2">
-                        {destination.name}, {destination.country}
+                        {destination.name}, {destination.country || "India"}
                       </h4>
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center">
@@ -280,45 +337,45 @@ export default function Dashboard() {
                 <Link href="/trips/create">
                   <Button className="w-full justify-start bg-transparent" variant="outline">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Plan Weekend Getaway
+                    Plan Weekend to Goa
                   </Button>
                 </Link>
                 <Link href="/search/activities">
                   <Button className="w-full justify-start bg-transparent" variant="outline">
                     <Search className="w-4 h-4 mr-2" />
-                    Discover Activities
+                    Discover Indian Experiences
                   </Button>
                 </Link>
                 <Link href="/search/cities">
                   <Button className="w-full justify-start bg-transparent" variant="outline">
                     <Camera className="w-4 h-4 mr-2" />
-                    Browse Destinations
+                    Browse Hill Stations
                   </Button>
                 </Link>
                 <Button
                   className="w-full justify-start bg-transparent"
                   variant="outline"
-                  onClick={() => alert("Community feature coming soon!")}
+                  onClick={() => alert("Join travel groups feature coming soon!")}
                 >
                   <Users className="w-4 h-4 mr-2" />
-                  Join Travel Groups
+                  Join Indian Travel Groups
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Budget Highlights */}
+            {/* Budget Highlights in INR */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Wallet className="w-5 h-5 mr-2" />
-                  Budget Highlights
+                  Budget Highlights (INR)
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Total Budget</span>
-                    <span className="font-semibold">${currentUser.totalBudget.toLocaleString()}</span>
+                    <span className="font-semibold">{formatINR.format(totalBudgetINR)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Active Trips</span>
@@ -326,9 +383,11 @@ export default function Dashboard() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Avg. Trip Cost</span>
-                    <span className="font-semibold">
-                      ${Math.round(currentUser.totalBudget / Math.max(currentUser.totalTrips, 1)).toLocaleString()}
-                    </span>
+                    <span className="font-semibold">{formatINR.format(avgTripCostINR)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Total Spent</span>
+                    <span className="font-semibold text-green-600">{formatINR.format(totalSpentINR)}</span>
                   </div>
                   <Link href="/trips">
                     <Button className="w-full mt-4 bg-transparent" variant="outline">
@@ -344,9 +403,9 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Users className="w-5 h-5 mr-2" />
-                  Community Activity
+                  Travel Community
                 </CardTitle>
-                <CardDescription>See what fellow travelers are up to</CardDescription>
+                <CardDescription>See what fellow Indian travelers are up to</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

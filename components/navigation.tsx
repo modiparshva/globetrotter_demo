@@ -2,7 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+<<<<<<< HEAD
 import { useAuth } from "@/hooks/use-auth"
+=======
+import { useSession, signOut } from "next-auth/react"
+>>>>>>> origin/dishant
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -16,7 +20,11 @@ import {
 import { Globe, Menu, X, User, Settings, LogOut, Plus, Search, Map } from "lucide-react"
 
 export function Navigation() {
+<<<<<<< HEAD
   const { user, isLoading, isAuthenticated, signOut } = useAuth()
+=======
+  const { data: session, status } = useSession()
+>>>>>>> origin/dishant
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -70,18 +78,32 @@ export function Navigation() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
+<<<<<<< HEAD
             {isLoading ? (
               <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
             ) : isAuthenticated && user ? (
+=======
+            {status === "loading" ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+            ) : session ? (
+>>>>>>> origin/dishant
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
+<<<<<<< HEAD
                       <AvatarImage src={user.profile?.profileImage || ""} alt={user.account?.name || ""} />
                       <AvatarFallback>
                         {user.account?.name
                           ?.split(" ")
                           .map((n: string) => n[0])
+=======
+                      <AvatarImage src={session.user?.image || ""} alt={session.user?.name || ""} />
+                      <AvatarFallback>
+                        {session.user?.name
+                          ?.split(" ")
+                          .map((n) => n[0])
+>>>>>>> origin/dishant
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
@@ -90,9 +112,15 @@ export function Navigation() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <div className="flex items-center justify-start gap-2 p-2">
                     <div className="flex flex-col space-y-1 leading-none">
+<<<<<<< HEAD
                       {user.account?.name && <p className="font-medium">{user.account.name}</p>}
                       {user.account?.email && (
                         <p className="w-[200px] truncate text-sm text-muted-foreground">{user.account.email}</p>
+=======
+                      {session.user?.name && <p className="font-medium">{session.user.name}</p>}
+                      {session.user?.email && (
+                        <p className="w-[200px] truncate text-sm text-muted-foreground">{session.user.email}</p>
+>>>>>>> origin/dishant
                       )}
                     </div>
                   </div>
@@ -114,7 +142,11 @@ export function Navigation() {
                     className="cursor-pointer"
                     onSelect={(event) => {
                       event.preventDefault()
+<<<<<<< HEAD
                       signOut()
+=======
+                      signOut({ callbackUrl: "/auth/signin" })
+>>>>>>> origin/dishant
                     }}
                   >
                     <LogOut className="mr-2 h-4 w-4" />

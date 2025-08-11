@@ -3,7 +3,10 @@
 import type React from "react"
 
 import { useState } from "react"
+<<<<<<< HEAD
 import { useAuth } from "@/hooks/use-auth"
+=======
+>>>>>>> origin/dishant
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -29,7 +32,11 @@ export default function SignUp() {
     profileImage: "",
   })
   const [error, setError] = useState("")
+<<<<<<< HEAD
   const { signUp, isSigningUp } = useAuth()
+=======
+  const [isLoading, setIsLoading] = useState(false)
+>>>>>>> origin/dishant
   const router = useRouter()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -41,14 +48,23 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+<<<<<<< HEAD
+=======
+    setIsLoading(true)
+>>>>>>> origin/dishant
     setError("")
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
+<<<<<<< HEAD
+=======
+      setIsLoading(false)
+>>>>>>> origin/dishant
       return
     }
 
     try {
+<<<<<<< HEAD
       signUp({
         email: formData.email,
         password: formData.password,
@@ -60,6 +76,26 @@ export default function SignUp() {
       })
     } catch (error) {
       setError("An error occurred. Please try again.")
+=======
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        router.push("/auth/signin?message=Registration successful")
+      } else {
+        const data = await response.json()
+        setError(data.error || "Registration failed")
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+>>>>>>> origin/dishant
     }
   }
 
@@ -258,9 +294,15 @@ export default function SignUp() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
+<<<<<<< HEAD
                 disabled={isSigningUp}
               >
                 {isSigningUp ? "Creating Account..." : "Create Account"}
+=======
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
+>>>>>>> origin/dishant
               </Button>
             </form>
 

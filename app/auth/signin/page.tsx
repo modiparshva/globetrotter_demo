@@ -3,7 +3,11 @@
 import type React from "react"
 
 import { useState } from "react"
+<<<<<<< HEAD
 import { useAuth } from "@/hooks/use-auth"
+=======
+import { signIn } from "next-auth/react"
+>>>>>>> origin/dishant
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -18,23 +22,54 @@ export default function SignIn() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+<<<<<<< HEAD
   const { signIn, isSigningIn } = useAuth()
+=======
+  const [isLoading, setIsLoading] = useState(false)
+>>>>>>> origin/dishant
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+<<<<<<< HEAD
+=======
+    setIsLoading(true)
+>>>>>>> origin/dishant
     setError("")
 
     if (!email || !password) {
       setError("Please fill in all fields")
+<<<<<<< HEAD
+=======
+      setIsLoading(false)
+>>>>>>> origin/dishant
       return
     }
 
     try {
+<<<<<<< HEAD
       signIn({ email, password })
     } catch (error) {
       console.error("Sign in error:", error)
       setError("An error occurred. Please try again.")
+=======
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError("Invalid email or password")
+      } else if (result?.ok) {
+        router.push("/dashboard")
+      }
+    } catch (error) {
+      console.error("Sign in error:", error)
+      setError("An error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+>>>>>>> origin/dishant
     }
   }
 
@@ -107,9 +142,15 @@ export default function SignIn() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
+<<<<<<< HEAD
                 disabled={isSigningIn}
               >
                 {isSigningIn ? "Signing in..." : "Sign In"}
+=======
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+>>>>>>> origin/dishant
               </Button>
             </form>
 

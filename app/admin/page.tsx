@@ -17,6 +17,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Eye,
+<<<<<<< HEAD
   Plane,
   Loader2
 } from "lucide-react"
@@ -31,6 +32,20 @@ export default function AdminDashboard() {
   const { data: allUsers, isLoading: isLoadingUsers } = useAdminUsers()
   const { data: popularDestinations, isLoading: isLoadingDestinations } = usePopularDestinations()
   
+=======
+  Plane
+} from "lucide-react"
+import Link from "next/link"
+import { getAdminStats, getGrowthMetrics, getPopularDestinations, getUserActivity, getRegionalAnalytics } from "@/lib/admin-data"
+
+export default function AdminDashboard() {
+  const stats = useMemo(() => getAdminStats(), [])
+  const growthMetrics = useMemo(() => getGrowthMetrics(), [])
+  const popularDestinations = useMemo(() => getPopularDestinations().slice(0, 5), [])
+  const userActivity = useMemo(() => getUserActivity().slice(0, 5), [])
+  const regionalData = useMemo(() => getRegionalAnalytics(), [])
+
+>>>>>>> origin/dishant
   // INR formatter
   const formatINR = useMemo(() => 
     new Intl.NumberFormat("en-IN", {
@@ -44,6 +59,7 @@ export default function AdminDashboard() {
     new Intl.NumberFormat("en-IN"), []
   )
 
+<<<<<<< HEAD
   // Static data that remains the same
   const growthMetrics = useMemo(() => adminService.getGrowthMetrics(), [])
   const recentActivities = useMemo(() => getCommunityActivity().slice(0, 5), [])
@@ -98,6 +114,8 @@ export default function AdminDashboard() {
     )
   }
 
+=======
+>>>>>>> origin/dishant
   return (
     <div className="space-y-8">
       {/* Page Header */}
@@ -155,7 +173,11 @@ export default function AdminDashboard() {
             <DollarSign className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
+<<<<<<< HEAD
             <div className="text-2xl font-bold">{formatINR.format(stats.totalBudget)}</div>
+=======
+            <div className="text-2xl font-bold">{formatINR.format(stats.totalBudgetAllTrips)}</div>
+>>>>>>> origin/dishant
             <div className="flex items-center text-xs text-muted-foreground">
               <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
               <span className="text-green-600">+{growthMetrics.budgetGrowth.percentageChange}%</span>
@@ -208,6 +230,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+<<<<<<< HEAD
                   <span className="text-sm">Planning</span>
                 </div>
                 <div className="flex items-center">
@@ -217,6 +240,17 @@ export default function AdminDashboard() {
               </div>
               <Progress 
                 value={(stats.planningTrips / stats.totalTrips) * 100} 
+=======
+                  <span className="text-sm">Upcoming</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-sm font-medium mr-2">{stats.upcomingTrips}</span>
+                  <Badge variant="secondary">{Math.round((stats.upcomingTrips / stats.totalTrips) * 100)}%</Badge>
+                </div>
+              </div>
+              <Progress 
+                value={(stats.upcomingTrips / stats.totalTrips) * 100} 
+>>>>>>> origin/dishant
                 className="h-2"
               />
 
@@ -234,6 +268,24 @@ export default function AdminDashboard() {
                 value={(stats.ongoingTrips / stats.totalTrips) * 100} 
                 className="h-2"
               />
+<<<<<<< HEAD
+=======
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                  <span className="text-sm">Planning</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-sm font-medium mr-2">{stats.planningTrips}</span>
+                  <Badge variant="secondary">{Math.round((stats.planningTrips / stats.totalTrips) * 100)}%</Badge>
+                </div>
+              </div>
+              <Progress 
+                value={(stats.planningTrips / stats.totalTrips) * 100} 
+                className="h-2"
+              />
+>>>>>>> origin/dishant
             </div>
           </CardContent>
         </Card>
@@ -296,17 +348,29 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
+<<<<<<< HEAD
               {(popularDestinations || []).slice(0, 5).map((destination, index) => (
                 <div key={destination.destination} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+=======
+              {popularDestinations.map((destination, index) => (
+                <div key={destination.cityId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+>>>>>>> origin/dishant
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
                       {index + 1}
                     </div>
                     <div>
+<<<<<<< HEAD
                       <div className="font-medium">{destination.destination}</div>
                       <div className="text-xs text-muted-foreground flex items-center">
                         <Star className="w-3 h-3 text-yellow-500 mr-1" />
                         4.5 • {destination.totalTrips} trips
+=======
+                      <div className="font-medium">{destination.cityName}</div>
+                      <div className="text-xs text-muted-foreground flex items-center">
+                        <Star className="w-3 h-3 text-yellow-500 mr-1" />
+                        {destination.avgRating} • {destination.totalTrips} trips
+>>>>>>> origin/dishant
                       </div>
                     </div>
                   </div>

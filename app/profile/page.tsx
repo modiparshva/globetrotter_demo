@@ -1,5 +1,6 @@
 "use client"
 
+<<<<<<< HEAD
 import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { useTrips } from "@/hooks/use-trips"
@@ -8,10 +9,20 @@ import { ID } from "appwrite"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+=======
+import type React from "react"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+>>>>>>> origin/dishant
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+<<<<<<< HEAD
 import { User, Mail, Phone, MapPin, Camera, Save, Globe, Calendar, Settings, Heart, Eye, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -49,12 +60,39 @@ export default function UserProfile() {
   }, [user])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+=======
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { User, Mail, Phone, MapPin, Camera, Save, Trash2, Globe, Calendar, Settings, Heart, Eye } from "lucide-react"
+
+export default function UserProfile() {
+  const [isEditing, setIsEditing] = useState(false)
+  const [profileData, setProfileData] = useState({
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    phone: "+1 (555) 123-4567",
+    city: "New York",
+    country: "United States",
+    bio: "Passionate traveler exploring the world one destination at a time. Love discovering hidden gems and sharing travel experiences with fellow adventurers.",
+    profileImage: "/diverse-user-avatars.png",
+  })
+
+  const [preferences, setPreferences] = useState({
+    language: "English",
+    currency: "USD",
+    notifications: true,
+    publicProfile: true,
+  })
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+>>>>>>> origin/dishant
     setProfileData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }))
   }
 
+<<<<<<< HEAD
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user?.account?.$id) return
@@ -146,6 +184,52 @@ export default function UserProfile() {
       </div>
     )
   }
+=======
+  const handleSave = () => {
+    // Save logic here
+    setIsEditing(false)
+  }
+
+  const plannedTrips = [
+    {
+      id: 1,
+      name: "European Adventure",
+      destination: "Paris, Rome, Barcelona",
+      dates: "Jun 15-30, 2024",
+      image: "/paris-eiffel-tower.png",
+    },
+    {
+      id: 2,
+      name: "Tokyo Discovery",
+      destination: "Tokyo, Kyoto, Osaka",
+      dates: "Mar 10-20, 2024",
+      image: "/tokyo-skyline-night.png",
+    },
+  ]
+
+  const previousTrips = [
+    {
+      id: 1,
+      name: "Bali Retreat",
+      destination: "Ubud, Seminyak",
+      dates: "Jan 5-15, 2024",
+      image: "/bali-temple.png",
+    },
+    {
+      id: 2,
+      name: "Iceland Adventure",
+      destination: "Reykjavik, Blue Lagoon",
+      dates: "Nov 12-18, 2023",
+      image: "/iceland-northern-lights.png",
+    },
+  ]
+
+  const savedDestinations = [
+    { name: "Santorini, Greece", image: "/santorini-sunset.png" },
+    { name: "Dubai, UAE", image: "/dubai-skyline.png" },
+    { name: "Bali, Indonesia", image: "/bali-temple.png" },
+  ]
+>>>>>>> origin/dishant
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
@@ -158,16 +242,25 @@ export default function UserProfile() {
 
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="profile" className="space-y-6">
+<<<<<<< HEAD
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="trips">My Trips</TabsTrigger>
               <TabsTrigger value="stats">Statistics</TabsTrigger>
+=======
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="trips">My Trips</TabsTrigger>
+              <TabsTrigger value="saved">Saved</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+>>>>>>> origin/dishant
             </TabsList>
 
             {/* Profile Tab */}
             <TabsContent value="profile">
               <Card>
                 <CardHeader>
+<<<<<<< HEAD
                   <div className="flex justify-between items-center">
                     <div>
                       <CardTitle>Profile Information</CardTitle>
@@ -200,6 +293,19 @@ export default function UserProfile() {
                         </Button>
                       )}
                     </div>
+=======
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center">
+                        <User className="w-5 h-5 mr-2" />
+                        Profile Information
+                      </CardTitle>
+                      <CardDescription>Update your personal information and profile details</CardDescription>
+                    </div>
+                    <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? "outline" : "default"}>
+                      {isEditing ? "Cancel" : "Edit Profile"}
+                    </Button>
+>>>>>>> origin/dishant
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -208,6 +314,7 @@ export default function UserProfile() {
                     <Avatar className="w-32 h-32">
                       <AvatarImage src={profileData.profileImage || "/placeholder.svg"} />
                       <AvatarFallback className="text-2xl">
+<<<<<<< HEAD
                         {profileData.firstName?.[0] || 'U'}
                         {profileData.lastName?.[0] || 'N'}
                       </AvatarFallback>
@@ -239,6 +346,18 @@ export default function UserProfile() {
                         className="hidden"
                       />
                     </div>
+=======
+                        {profileData.firstName[0]}
+                        {profileData.lastName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    {isEditing && (
+                      <Button variant="outline" size="sm">
+                        <Camera className="w-4 h-4 mr-2" />
+                        Change Photo
+                      </Button>
+                    )}
+>>>>>>> origin/dishant
                   </div>
 
                   {/* Personal Information */}
@@ -282,11 +401,19 @@ export default function UserProfile() {
                           name="email"
                           type="email"
                           value={profileData.email}
+<<<<<<< HEAD
                           disabled={true}
                           className="pl-10"
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+=======
+                          onChange={handleInputChange}
+                          disabled={!isEditing}
+                          className="pl-10"
+                        />
+                      </div>
+>>>>>>> origin/dishant
                     </div>
 
                     <div className="space-y-2">
@@ -334,6 +461,37 @@ export default function UserProfile() {
                       </div>
                     </div>
                   </div>
+<<<<<<< HEAD
+=======
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      name="bio"
+                      value={profileData.bio}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      rows={4}
+                      placeholder="Tell us about yourself and your travel interests..."
+                    />
+                  </div>
+
+                  {isEditing && (
+                    <div className="flex gap-4">
+                      <Button
+                        onClick={handleSave}
+                        className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Changes
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
+>>>>>>> origin/dishant
                 </CardContent>
               </Card>
             </TabsContent>
@@ -341,6 +499,7 @@ export default function UserProfile() {
             {/* Trips Tab */}
             <TabsContent value="trips">
               <div className="space-y-6">
+<<<<<<< HEAD
                 {/* Ongoing Trips */}
                 {ongoingTrips.length > 0 && (
                   <Card>
@@ -489,11 +648,169 @@ export default function UserProfile() {
                         <p className="text-muted-foreground">Total Trips</p>
                       </div>
                       <Globe className="w-8 h-8 text-blue-500" />
+=======
+                {/* Planned Trips */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Planned Trips</CardTitle>
+                    <CardDescription>Your upcoming adventures</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {plannedTrips.map((trip) => (
+                        <Card key={trip.id} className="overflow-hidden">
+                          <img
+                            src={trip.image || "/placeholder.svg"}
+                            alt={trip.name}
+                            className="w-full h-32 object-cover"
+                          />
+                          <CardContent className="p-4">
+                            <h4 className="font-semibold mb-1">{trip.name}</h4>
+                            <p className="text-sm text-muted-foreground mb-2">{trip.destination}</p>
+                            <div className="flex items-center text-xs text-muted-foreground">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {trip.dates}
+                            </div>
+                            <div className="flex gap-2 mt-3">
+                              <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Previous Trips */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Previous Trips</CardTitle>
+                    <CardDescription>Your completed adventures</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {previousTrips.map((trip) => (
+                        <Card key={trip.id} className="overflow-hidden">
+                          <img
+                            src={trip.image || "/placeholder.svg"}
+                            alt={trip.name}
+                            className="w-full h-32 object-cover"
+                          />
+                          <CardContent className="p-4">
+                            <h4 className="font-semibold mb-1">{trip.name}</h4>
+                            <p className="text-sm text-muted-foreground mb-2">{trip.destination}</p>
+                            <div className="flex items-center text-xs text-muted-foreground">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {trip.dates}
+                            </div>
+                            <div className="flex gap-2 mt-3">
+                              <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Saved Tab */}
+            <TabsContent value="saved">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Heart className="w-5 h-5 mr-2" />
+                    Saved Destinations
+                  </CardTitle>
+                  <CardDescription>Places you want to visit</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {savedDestinations.map((destination, index) => (
+                      <Card key={index} className="overflow-hidden">
+                        <img
+                          src={destination.image || "/placeholder.svg"}
+                          alt={destination.name}
+                          className="w-full h-32 object-cover"
+                        />
+                        <CardContent className="p-4">
+                          <h4 className="font-semibold mb-2">{destination.name}</h4>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                              View Details
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Heart className="w-3 h-3 text-red-500" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Settings Tab */}
+            <TabsContent value="settings">
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Settings className="w-5 h-5 mr-2" />
+                      Account Settings
+                    </CardTitle>
+                    <CardDescription>Manage your account preferences</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Language</Label>
+                        <p className="text-sm text-muted-foreground">Choose your preferred language</p>
+                      </div>
+                      <Badge variant="outline">{preferences.language}</Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Currency</Label>
+                        <p className="text-sm text-muted-foreground">Default currency for pricing</p>
+                      </div>
+                      <Badge variant="outline">{preferences.currency}</Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Email Notifications</Label>
+                        <p className="text-sm text-muted-foreground">Receive trip updates and recommendations</p>
+                      </div>
+                      <Badge variant={preferences.notifications ? "default" : "secondary"}>
+                        {preferences.notifications ? "Enabled" : "Disabled"}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Public Profile</Label>
+                        <p className="text-sm text-muted-foreground">Allow others to see your trips</p>
+                      </div>
+                      <Badge variant={preferences.publicProfile ? "default" : "secondary"}>
+                        {preferences.publicProfile ? "Public" : "Private"}
+                      </Badge>
+>>>>>>> origin/dishant
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
+<<<<<<< HEAD
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -514,6 +831,23 @@ export default function UserProfile() {
                       </div>
                       <Calendar className="w-8 h-8 text-green-500" />
                     </div>
+=======
+                  <CardHeader>
+                    <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                    <CardDescription>Irreversible actions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Alert>
+                      <AlertDescription>
+                        Deleting your account will permanently remove all your trips, preferences, and data. This action
+                        cannot be undone.
+                      </AlertDescription>
+                    </Alert>
+                    <Button variant="destructive" className="mt-4">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Account
+                    </Button>
+>>>>>>> origin/dishant
                   </CardContent>
                 </Card>
               </div>
@@ -523,4 +857,8 @@ export default function UserProfile() {
       </div>
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/dishant

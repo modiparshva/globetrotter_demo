@@ -1,15 +1,23 @@
 "use client"
 
+<<<<<<< HEAD
 import { useState, useRef, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useTrip, useTrips } from "@/hooks/use-trips"
 import { storage, TRIP_IMAGES_BUCKET_ID } from "@/lib/appwrite"
 import { ID } from "appwrite"
+=======
+import type React from "react"
+
+import { useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+>>>>>>> origin/dishant
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+<<<<<<< HEAD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -17,10 +25,19 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Calendar, MapPin, Camera, Save, ArrowLeft, Trash2, Upload, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
+=======
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Switch } from "@/components/ui/switch"
+import { Calendar, MapPin, Camera, Save, ArrowLeft, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { getTripById } from "@/lib/data"
+>>>>>>> origin/dishant
 
 export default function EditTrip() {
   const params = useParams()
   const router = useRouter()
+<<<<<<< HEAD
   const { user } = useAuth()
   const tripId = params.id as string
   const { trip, isLoadingTrip } = useTrip(tripId)
@@ -76,12 +93,30 @@ export default function EditTrip() {
       </div>
     )
   }
+=======
+  const tripId = Number.parseInt(params.id as string)
+
+  const trip = getTripById(tripId)
+
+  const [formData, setFormData] = useState({
+    name: trip?.name || "",
+    description: trip?.description || "",
+    startDate: trip?.startDate || "",
+    endDate: trip?.endDate || "",
+    totalBudget: trip?.totalBudget || 0,
+    isPublic: trip?.isPublic || false,
+    coverImage: trip?.coverImage || "",
+  })
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+>>>>>>> origin/dishant
 
   if (!trip) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Trip Not Found</h1>
+<<<<<<< HEAD
           <p className="text-gray-600 mb-4">The trip you're looking for doesn't exist.</p>
           <Link href="/trips">
             <Button>Back to Trips</Button>
@@ -98,6 +133,9 @@ export default function EditTrip() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-600 mb-4">You don't have permission to edit this trip.</p>
+=======
+          <p className="text-gray-600 mb-4">The trip you're trying to edit doesn't exist.</p>
+>>>>>>> origin/dishant
           <Link href="/trips">
             <Button>Back to Trips</Button>
           </Link>
@@ -107,6 +145,7 @@ export default function EditTrip() {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+<<<<<<< HEAD
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -170,15 +209,44 @@ export default function EditTrip() {
 
     if (!formData.name || !formData.destination || !formData.startDate || !formData.endDate) {
       setError("Please fill in all required fields")
+=======
+    const { name, value, type } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number.parseFloat(value) || 0 : value,
+    }))
+  }
+
+  const handleSwitchChange = (checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      isPublic: checked,
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
+
+    if (!formData.name || !formData.startDate || !formData.endDate) {
+      setError("Please fill in all required fields")
+      setIsLoading(false)
+>>>>>>> origin/dishant
       return
     }
 
     if (new Date(formData.startDate) >= new Date(formData.endDate)) {
       setError("End date must be after start date")
+<<<<<<< HEAD
+=======
+      setIsLoading(false)
+>>>>>>> origin/dishant
       return
     }
 
     try {
+<<<<<<< HEAD
       // Upload image if selected
       let imageUrl = formData.image
       if (selectedImage) {
@@ -217,6 +285,37 @@ export default function EditTrip() {
       router.push("/trips")
     } else {
       setShowDeleteConfirm(true)
+=======
+      // Simulate API call
+      console.log("Updating trip:", formData)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // Redirect back to trip details
+      router.push(`/trips/${tripId}`)
+    } catch (error) {
+      console.error("Update trip error:", error)
+      setError("An error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (confirm("Are you sure you want to delete this trip? This action cannot be undone.")) {
+      try {
+        setIsLoading(true)
+        // Simulate API call
+        console.log("Deleting trip:", tripId)
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        router.push("/trips")
+      } catch (error) {
+        console.error("Delete trip error:", error)
+        setError("Failed to delete trip. Please try again.")
+      } finally {
+        setIsLoading(false)
+      }
+>>>>>>> origin/dishant
     }
   }
 
@@ -242,9 +341,15 @@ export default function EditTrip() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
+<<<<<<< HEAD
                 Trip Details
               </CardTitle>
               <CardDescription>Update your trip information</CardDescription>
+=======
+                Trip Information
+              </CardTitle>
+              <CardDescription>Update your trip details and preferences</CardDescription>
+>>>>>>> origin/dishant
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -267,6 +372,7 @@ export default function EditTrip() {
                   />
                 </div>
 
+<<<<<<< HEAD
                 {/* Destination */}
                 <div className="space-y-2">
                   <Label htmlFor="destination">Destination *</Label>
@@ -284,6 +390,8 @@ export default function EditTrip() {
                   </div>
                 </div>
 
+=======
+>>>>>>> origin/dishant
                 {/* Date Range */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -313,12 +421,16 @@ export default function EditTrip() {
                         onChange={handleInputChange}
                         className="pl-10"
                         required
+<<<<<<< HEAD
                         min={formData.startDate}
+=======
+>>>>>>> origin/dishant
                       />
                     </div>
                   </div>
                 </div>
 
+<<<<<<< HEAD
                 {/* Budget and Status */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -351,6 +463,21 @@ export default function EditTrip() {
                       </SelectContent>
                     </Select>
                   </div>
+=======
+                {/* Budget */}
+                <div className="space-y-2">
+                  <Label htmlFor="totalBudget">Total Budget ($)</Label>
+                  <Input
+                    id="totalBudget"
+                    name="totalBudget"
+                    type="number"
+                    placeholder="0"
+                    value={formData.totalBudget}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.01"
+                  />
+>>>>>>> origin/dishant
                 </div>
 
                 {/* Trip Description */}
@@ -366,6 +493,7 @@ export default function EditTrip() {
                   />
                 </div>
 
+<<<<<<< HEAD
                 {/* Cover Photo */}
                 <div className="space-y-2">
                   <Label>Cover Photo</Label>
@@ -466,6 +594,83 @@ export default function EditTrip() {
               </form>
             </CardContent>
           </Card>
+=======
+                {/* Privacy Setting */}
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="isPublic">Make Trip Public</Label>
+                    <p className="text-sm text-muted-foreground">Allow others to view and get inspired by your trip</p>
+                  </div>
+                  <Switch id="isPublic" checked={formData.isPublic} onCheckedChange={handleSwitchChange} />
+                </div>
+
+                {/* Cover Photo */}
+                <div className="space-y-2">
+                  <Label>Cover Photo</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                    {formData.coverImage ? (
+                      <div className="space-y-4">
+                        <img
+                          src={formData.coverImage || "/placeholder.svg"}
+                          alt="Trip cover"
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <Button type="button" variant="outline" size="sm">
+                          <Camera className="w-4 h-4 mr-2" />
+                          Change Photo
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-sm text-gray-600 mb-2">Upload a cover photo for your trip</p>
+                        <Button type="button" variant="outline" size="sm">
+                          Choose File
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
+                    disabled={isLoading}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isLoading ? "Saving Changes..." : "Save Changes"}
+                  </Button>
+                  <Button type="button" variant="outline" asChild>
+                    <Link href={`/trips/${tripId}`}>Cancel</Link>
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Danger Zone */}
+          <Card className="mt-8 border-red-200">
+            <CardHeader>
+              <CardTitle className="text-red-600">Danger Zone</CardTitle>
+              <CardDescription>Irreversible actions for this trip</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg">
+                <div>
+                  <h4 className="font-medium text-red-900">Delete Trip</h4>
+                  <p className="text-sm text-red-600">
+                    Permanently delete this trip and all associated data. This action cannot be undone.
+                  </p>
+                </div>
+                <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Trip
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+>>>>>>> origin/dishant
         </div>
       </div>
     </div>

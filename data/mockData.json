@@ -2,6 +2,7 @@
   "users": [
     {
       "id": 1,
+<<<<<<< HEAD
       "email": "john.doe@example.com",
       "firstName": "John",
       "lastName": "Doe",
@@ -14,12 +15,42 @@
       "countriesVisited": 8,
       "totalBudget": 6000,
       "sharedPlans": 5
+=======
+      "email": "arjun.sharma@gmail.com",
+      "firstName": "Arjun",
+      "lastName": "Sharma",
+      "phone": "+91-98765-43210",
+      "city": "Mumbai",
+      "country": "India",
+      "profileImage": "/man-profile.png",
+      "bio": "Travel enthusiast exploring incredible India, from Kashmir to Kanyakumari.",
+      "totalTrips": 15,
+      "countriesVisited": 12,
+      "totalBudget": 25000,
+      "sharedPlans": 4
+    },
+    {
+      "id": 2,
+      "email": "priya.patel@gmail.com",
+      "firstName": "Priya",
+      "lastName": "Patel",
+      "phone": "+91-87654-32109",
+      "city": "Bengaluru",
+      "country": "India",
+      "profileImage": "/woman-profile.png",
+      "bio": "Adventure lover and culture explorer discovering India's hidden gems.",
+      "totalTrips": 10,
+      "countriesVisited": 8,
+      "totalBudget": 1800000,
+      "sharedPlans": 3
+>>>>>>> origin/dishant
     }
   ],
   "trips": [
     {
       "id": 1,
       "userId": 1,
+<<<<<<< HEAD
       "name": "European Adventure",
       "description": "Exploring the best of Europe with friends",
       "startDate": "2024-06-15",
@@ -31,10 +62,24 @@
       "isPublic": true,
       "destinationCount": 3,
       "shareToken": "eur-adv-2024"
+=======
+      "name": "Rajasthan Royal Circuit",
+      "description": "Exploring palaces, forts and desert culture of Rajasthan",
+      "startDate": "2025-10-15",
+      "endDate": "2025-10-30",
+      "coverImage": "/rajasthan_royal_webp.webp",
+      "totalBudget": 75000,
+      "spent": 0,
+      "status": "upcoming",
+      "isPublic": true,
+      "destinationCount": 4,
+      "shareToken": "rajasthan-royal-circuit-2025"
+>>>>>>> origin/dishant
     },
     {
       "id": 2,
       "userId": 1,
+<<<<<<< HEAD
       "name": "Tokyo Discovery",
       "description": "Cultural immersion in Japan",
       "startDate": "2024-03-10",
@@ -46,10 +91,24 @@
       "isPublic": false,
       "destinationCount": 2,
       "shareToken": "tokyo-disc-2024"
+=======
+      "name": "Kerala Backwaters Journey",
+      "description": "Peaceful houseboat experience through Kerala's backwaters",
+      "startDate": "2025-05-10",
+      "endDate": "2025-05-20",
+      "coverImage": "/kerela.png",
+      "totalBudget": 45000,
+      "spent": 25000,
+      "status": "ongoing",
+      "isPublic": false,
+      "destinationCount": 3,
+      "shareToken": "kerala-backwaters-journey-2025"
+>>>>>>> origin/dishant
     },
     {
       "id": 3,
       "userId": 1,
+<<<<<<< HEAD
       "name": "Bali Retreat",
       "description": "Relaxation and wellness journey",
       "startDate": "2024-12-05",
@@ -61,11 +120,25 @@
       "isPublic": true,
       "destinationCount": 2,
       "shareToken": "bali-retreat-2024"
+=======
+      "name": "Goa Beach Paradise",
+      "description": "Sun, sand and sea in beautiful Goa",
+      "startDate": "2025-02-05",
+      "endDate": "2025-02-15",
+      "coverImage": "/goa.png",
+      "totalBudget": 35000,
+      "spent": 35000,
+      "status": "completed",
+      "isPublic": true,
+      "destinationCount": 2,
+      "shareToken": "goa-beach-paradise-2025"
+>>>>>>> origin/dishant
     }
   ],
   "cities": [
     {
       "id": 1,
+<<<<<<< HEAD
       "name": "Tokyo",
       "country": "Japan",
       "region": "Asia",
@@ -147,12 +220,124 @@
       "travelers": "600K",
       "latitude": 64.1466,
       "longitude": -21.9426
+=======
+      "name": "Jaipur",
+      "country": "India",
+      "region": "North India",
+      "costIndex": 65,
+      "popularityScore": 95,
+      "imageUrl": "/jaipur_webp.webp",
+      "description": "The Pink City, famous for its palaces, forts and vibrant culture",
+      "rating": 4.8,
+      "travelers": "3.2M",
+      "latitude": 26.9124,
+      "longitude": 75.7873
+    },
+    {
+      "id": 2,
+      "name": "Kerala (Alleppey)",
+      "country": "India",
+      "region": "South India",
+      "costIndex": 55,
+      "popularityScore": 92,
+      "imageUrl": "/kerela.png",
+      "description": "God's Own Country with serene backwaters and lush greenery",
+      "rating": 4.9,
+      "travelers": "2.8M",
+      "latitude": 9.4981,
+      "longitude": 76.3388
+    },
+    {
+      "id": 3,
+      "name": "Goa",
+      "country": "India",
+      "region": "West India",
+      "costIndex": 70,
+      "popularityScore": 88,
+      "imageUrl": "/goa.png",
+      "description": "Beautiful beaches, Portuguese heritage and vibrant nightlife",
+      "rating": 4.6,
+      "travelers": "4.1M",
+      "latitude": 15.2993,
+      "longitude": 74.1240
+    },
+    {
+      "id": 4,
+      "name": "Udaipur",
+      "country": "India",
+      "region": "North India",
+      "costIndex": 60,
+      "popularityScore": 85,
+      "imageUrl": "/udaipur_png.png",
+      "description": "City of Lakes with stunning palaces and romantic settings",
+      "rating": 4.9,
+      "travelers": "1.5M",
+      "latitude": 24.5854,
+      "longitude": 73.7125
+    },
+    {
+      "id": 5,
+      "name": "Manali",
+      "country": "India",
+      "region": "North India",
+      "costIndex": 50,
+      "popularityScore": 82,
+      "imageUrl": "/manali.png",
+      "description": "Hill station paradise with snow-capped mountains and adventure sports",
+      "rating": 4.5,
+      "travelers": "2.2M",
+      "latitude": 32.2396,
+      "longitude": 77.1887
+    },
+    {
+      "id": 6,
+      "name": "Varanasi",
+      "country": "India",
+      "region": "North India",
+      "costIndex": 40,
+      "popularityScore": 78,
+      "imageUrl": "/varanasi.png",
+      "description": "Spiritual capital of India with ancient ghats and Ganga aarti",
+      "rating": 4.4,
+      "travelers": "1.8M",
+      "latitude": 25.3176,
+      "longitude": 82.9739
+    },
+    {
+      "id": 7,
+      "name": "Agra",
+      "country": "India",
+      "region": "North India",
+      "costIndex": 45,
+      "popularityScore": 90,
+      "imageUrl": "/taj-mahal.png",
+      "description": "Home to the magnificent Taj Mahal, symbol of eternal love",
+      "rating": 4.7,
+      "travelers": "6.5M",
+      "latitude": 27.1767,
+      "longitude": 78.0081
+    },
+    {
+      "id": 8,
+      "name": "Rishikesh",
+      "country": "India",
+      "region": "North India",
+      "costIndex": 35,
+      "popularityScore": 75,
+      "imageUrl": "/rishikesh-ganges.png",
+      "description": "Yoga capital of the world on the banks of river Ganga",
+      "rating": 4.6,
+      "travelers": "1.2M",
+      "latitude": 30.0869,
+      "longitude": 78.2676
+>>>>>>> origin/dishant
     }
   ],
   "activities": [
     {
       "id": 1,
       "cityId": 1,
+<<<<<<< HEAD
       "name": "Visit Senso-ji Temple",
       "description": "Ancient Buddhist temple in Asakusa district with traditional architecture and cultural significance",
       "category": "Cultural",
@@ -160,10 +345,20 @@
       "durationHours": 2,
       "rating": 4.5,
       "imageUrl": "/tokyo-skyline-night.png"
+=======
+      "name": "Amber Fort Visit",
+      "description": "Explore the magnificent Amber Fort with elephant ride",
+      "category": "Heritage",
+      "cost": 500,
+      "durationHours": 3,
+      "rating": 4.8,
+      "imageUrl": "/amber-fort.png"
+>>>>>>> origin/dishant
     },
     {
       "id": 2,
       "cityId": 1,
+<<<<<<< HEAD
       "name": "Tokyo Skytree Observatory",
       "description": "Panoramic city views from 634m tower, one of the tallest structures in the world",
       "category": "Sightseeing",
@@ -182,10 +377,31 @@
       "durationHours": 3,
       "rating": 4.7,
       "imageUrl": "/tokyo-skyline-night.png"
+=======
+      "name": "Hawa Mahal Tour",
+      "description": "Visit the iconic Palace of Winds",
+      "category": "Heritage",
+      "cost": 200,
+      "durationHours": 1,
+      "rating": 4.7,
+      "imageUrl": "/jaipur-hawa-mahal.png"
+    },
+    {
+      "id": 3,
+      "cityId": 2,
+      "name": "Houseboat Stay",
+      "description": "Overnight stay in traditional Kerala houseboat",
+      "category": "Experience",
+      "cost": 8000,
+      "durationHours": 24,
+      "rating": 4.9,
+      "imageUrl": "/kerala-houseboat.png"
+>>>>>>> origin/dishant
     },
     {
       "id": 4,
       "cityId": 2,
+<<<<<<< HEAD
       "name": "Eiffel Tower Visit",
       "description": "Iconic iron tower with breathtaking city views and romantic atmosphere",
       "category": "Sightseeing",
@@ -237,22 +453,129 @@
       "durationHours": 6,
       "rating": 4.6,
       "imageUrl": "/bali-temple.png"
+=======
+      "name": "Ayurvedic Spa Treatment",
+      "description": "Traditional Kerala Ayurvedic massage and treatment",
+      "category": "Wellness",
+      "cost": 2500,
+      "durationHours": 2,
+      "rating": 4.8,
+      "imageUrl": "/kerala-ayurveda.png"
+    },
+    {
+      "id": 5,
+      "cityId": 3,
+      "name": "Beach Shack Experience",
+      "description": "Enjoy fresh seafood and sunset views at beach shacks",
+      "category": "Dining",
+      "cost": 1500,
+      "durationHours": 3,
+      "rating": 4.6,
+      "imageUrl": "/goa-beach-shack.png"
+    },
+    {
+      "id": 6,
+      "cityId": 3,
+      "name": "Old Goa Churches Tour",
+      "description": "Visit historic Portuguese churches and cathedrals",
+      "category": "Heritage",
+      "cost": 300,
+      "durationHours": 4,
+      "rating": 4.5,
+      "imageUrl": "/goa-churches.png"
+    },
+    {
+      "id": 7,
+      "cityId": 4,
+      "name": "City Palace Visit",
+      "description": "Explore the royal City Palace complex",
+      "category": "Heritage",
+      "cost": 400,
+      "durationHours": 2,
+      "rating": 4.9,
+      "imageUrl": "/udaipur-city-palace.png"
+    },
+    {
+      "id": 8,
+      "cityId": 4,
+      "name": "Lake Pichola Boat Ride",
+      "description": "Romantic boat ride on Lake Pichola",
+      "category": "Experience",
+      "cost": 800,
+      "durationHours": 1,
+      "rating": 4.8,
+      "imageUrl": "/lake-pichola.png"
+    },
+    {
+      "id": 9,
+      "cityId": 7,
+      "name": "Taj Mahal Sunrise Tour",
+      "description": "Experience the Taj Mahal at sunrise",
+      "category": "Heritage",
+      "cost": 1100,
+      "durationHours": 3,
+      "rating": 4.9,
+      "imageUrl": "/taj-mahal.png"
+    },
+    {
+      "id": 10,
+      "cityId": 8,
+      "name": "River Rafting",
+      "description": "White water rafting on the Ganges",
+      "category": "Adventure",
+      "cost": 2000,
+      "durationHours": 4,
+      "rating": 4.7,
+      "imageUrl": "/rishikesh-rafting.png"
+    },
+    {
+      "id": 11,
+      "cityId": 8,
+      "name": "Yoga & Meditation Session",
+      "description": "Traditional yoga session by the Ganges",
+      "category": "Wellness",
+      "cost": 1000,
+      "durationHours": 2,
+      "rating": 4.8,
+      "imageUrl": "/rishikesh-yoga.png"
+    },
+    {
+      "id": 12,
+      "cityId": 6,
+      "name": "Ganga Aarti Ceremony",
+      "description": "Witness the evening Ganga Aarti at Dashashwamedh Ghat",
+      "category": "Spiritual",
+      "cost": 0,
+      "durationHours": 1,
+      "rating": 4.9,
+      "imageUrl": "/varanasi-aarti.png"
+>>>>>>> origin/dishant
     }
   ],
   "tripStops": [
     {
       "id": 1,
       "tripId": 1,
+<<<<<<< HEAD
       "cityId": 2,
       "startDate": "2024-06-15",
       "endDate": "2024-06-20",
       "orderIndex": 1,
       "budget": 1200,
       "notes": "Explore the romantic side of Paris"
+=======
+      "cityId": 1,
+      "startDate": "2025-10-15",
+      "endDate": "2025-10-20",
+      "orderIndex": 1,
+      "budget": 25000,
+      "notes": "Start in Jaipur, explore the Pink City"
+>>>>>>> origin/dishant
     },
     {
       "id": 2,
       "tripId": 1,
+<<<<<<< HEAD
       "cityId": 5,
       "startDate": "2024-06-21",
       "endDate": "2024-06-25",
@@ -279,21 +602,58 @@
       "orderIndex": 1,
       "budget": 2800,
       "notes": "Complete cultural immersion"
+=======
+      "cityId": 4,
+      "startDate": "2025-10-20",
+      "endDate": "2025-10-25",
+      "orderIndex": 2,
+      "budget": 30000,
+      "notes": "Udaipur - City of Lakes and romance"
+    },
+    {
+      "id": 3,
+      "tripId": 2,
+      "cityId": 2,
+      "startDate": "2025-05-10",
+      "endDate": "2025-05-20",
+      "orderIndex": 1,
+      "budget": 45000,
+      "notes": "Full Kerala backwaters experience"
+    },
+    {
+      "id": 4,
+      "tripId": 3,
+      "cityId": 3,
+      "startDate": "2025-02-05",
+      "endDate": "2025-02-15",
+      "orderIndex": 1,
+      "budget": 35000,
+      "notes": "Beach relaxation and Goan culture"
+>>>>>>> origin/dishant
     }
   ],
   "tripActivities": [
     {
       "id": 1,
       "tripStopId": 1,
+<<<<<<< HEAD
       "activityId": 4,
       "scheduledDate": "2024-06-16",
       "scheduledTime": "10:00",
       "cost": 30,
       "notes": "Morning visit to avoid crowds"
+=======
+      "activityId": 1,
+      "scheduledDate": "2025-10-16",
+      "scheduledTime": "10:00",
+      "cost": 500,
+      "notes": "Morning visit to Amber Fort"
+>>>>>>> origin/dishant
     },
     {
       "id": 2,
       "tripStopId": 1,
+<<<<<<< HEAD
       "activityId": 5,
       "scheduledDate": "2024-06-17",
       "scheduledTime": "14:00",
@@ -308,10 +668,27 @@
       "scheduledTime": "19:00",
       "cost": 35,
       "notes": "Sunset cruise"
+=======
+      "activityId": 2,
+      "scheduledDate": "2025-10-17",
+      "scheduledTime": "14:00",
+      "cost": 200,
+      "notes": "Afternoon at Hawa Mahal"
+    },
+    {
+      "id": 3,
+      "tripStopId": 3,
+      "activityId": 3,
+      "scheduledDate": "2025-05-12",
+      "scheduledTime": "15:00",
+      "cost": 8000,
+      "notes": "Houseboat stay experience"
+>>>>>>> origin/dishant
     },
     {
       "id": 4,
       "tripStopId": 4,
+<<<<<<< HEAD
       "activityId": 1,
       "scheduledDate": "2024-03-12",
       "scheduledTime": "09:00",
@@ -326,25 +703,44 @@
       "scheduledTime": "15:00",
       "cost": 25,
       "notes": "Afternoon city views"
+=======
+      "activityId": 5,
+      "scheduledDate": "2025-02-08",
+      "scheduledTime": "18:00",
+      "cost": 1500,
+      "notes": "Sunset dinner at beach shack"
+>>>>>>> origin/dishant
     }
   ],
   "communityActivity": [
     {
       "id": 1,
+<<<<<<< HEAD
       "user": "Sarah M.",
       "action": "shared her Tokyo itinerary",
+=======
+      "user": "Anita Desai",
+      "action": "shared her Ladakh adventure photos",
+>>>>>>> origin/dishant
       "time": "2 hours ago",
       "avatar": "/woman-profile.png"
     },
     {
       "id": 2,
+<<<<<<< HEAD
       "user": "Mike R.",
       "action": "completed trip to Barcelona",
       "time": "1 day ago",
+=======
+      "user": "Rahul Gupta",
+      "action": "completed Golden Triangle tour",
+      "time": "5 hours ago",
+>>>>>>> origin/dishant
       "avatar": "/man-profile.png"
     },
     {
       "id": 3,
+<<<<<<< HEAD
       "user": "Emma L.",
       "action": "added 5 activities to Rome trip",
       "time": "2 days ago",
@@ -352,3 +748,26 @@
     }
   ]
 }
+=======
+      "user": "Meera Singh",
+      "action": "started planning Kashmir trip",
+      "time": "1 day ago",
+      "avatar": "/woman-profile-two.png"
+    },
+    {
+      "id": 4,
+      "user": "Vikram Patel",
+      "action": "reviewed Kerala houseboat experience",
+      "time": "2 days ago",
+      "avatar": "/man-profile.png"
+    },
+    {
+      "id": 5,
+      "user": "Kavya Nair",
+      "action": "added Goa to wishlist",
+      "time": "3 days ago",
+      "avatar": "/woman-profile.png"
+    }
+  ]
+}
+>>>>>>> origin/dishant

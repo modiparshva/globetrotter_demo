@@ -12,7 +12,7 @@
       "bio": "Travel enthusiast exploring incredible India, from Kashmir to Kanyakumari.",
       "totalTrips": 15,
       "countriesVisited": 12,
-      "totalBudget": 2500000,
+      "totalBudget": 25000,
       "sharedPlans": 4
     },
     {
@@ -142,7 +142,7 @@
       "region": "North India",
       "costIndex": 50,
       "popularityScore": 82,
-      "imageUrl": "/manali-mountains.png",
+      "imageUrl": "/manali.png",
       "description": "Hill station paradise with snow-capped mountains and adventure sports",
       "rating": 4.5,
       "travelers": "2.2M",
@@ -156,7 +156,7 @@
       "region": "North India",
       "costIndex": 40,
       "popularityScore": 78,
-      "imageUrl": "/varanasi-ghats.png",
+      "imageUrl": "/varanasi.png",
       "description": "Spiritual capital of India with ancient ghats and Ganga aarti",
       "rating": 4.4,
       "travelers": "1.8M",

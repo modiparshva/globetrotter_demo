@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,22 +19,79 @@ import {
   Globe,
   Camera,
   Heart,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
-import { getUsers, getTrips, getCities, getCommunityActivity, getTripsByUserId } from "@/lib/data"
+import { useAuth } from "@/hooks/use-auth"
+import { useTrips } from "@/hooks/use-trips"
+import { getCities, getCommunityActivity } from "@/lib/data"
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
+  const { user, isLoading: isAuthLoading } = useAuth()
+  const { trips, isLoadingTrips } = useTrips()
 
-  // Get data from JSON
-  const users = getUsers()
-  const currentUser = users[0] // Simulate logged in user
-  const allTrips = getTrips()
-  const userTrips = getTripsByUserId(currentUser.id)
-  const upcomingTrips = userTrips.filter((trip) => trip.status === "upcoming" || trip.status === "planning")
+  // Static data that remains the same
   const cities = getCities()
-  const popularDestinations = cities.slice(0, 4) // Get first 4 cities
+  const popularDestinations = cities.slice(0, 4)
   const recentActivities = getCommunityActivity()
+
+  // Calculate user statistics from real trip data
+  const userStats = useMemo(() => {
+    if (!trips) return { totalTrips: 0, countriesVisited: 0, totalBudget: 0, sharedPlans: 0 }
+
+    const totalTrips = trips.length
+    const totalBudget = trips.reduce((sum, trip) => sum + trip.budget, 0)
+    const uniqueDestinations = new Set(trips.map(trip => trip.destination))
+    const countriesVisited = uniqueDestinations.size
+    const sharedPlans = trips.filter(trip => trip.status === 'planning').length
+
+    return {
+      totalTrips,
+      countriesVisited,
+      totalBudget,
+      sharedPlans,
+    }
+  }, [trips])
+
+  // Filter upcoming trips
+  const upcomingTrips = useMemo(() => {
+    if (!trips) return []
+    return trips.filter((trip) => trip.status === "planning" || trip.status === "ongoing")
+  }, [trips])
+
+  // Show loading state
+  if (isAuthLoading || isLoadingTrips) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-muted-foreground">Loading your dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Please sign in</h3>
+            <p className="text-gray-600 mb-4">You need to be signed in to view your dashboard.</p>
+            <Button asChild>
+              <Link href="/auth/signin">Sign In</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
@@ -43,7 +100,7 @@ export default function Dashboard() {
         <section className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {currentUser.firstName}! ✈️</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user.profile?.firstName || 'Traveler'}! ✈️</h2>
               <p className="text-lg text-muted-foreground">
                 Ready to plan your next adventure? Let's make it unforgettable.
               </p>
@@ -66,7 +123,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100">Total Trips</p>
-                    <p className="text-2xl font-bold">{currentUser.totalTrips}</p>
+                    <p className="text-2xl font-bold">{userStats.totalTrips}</p>
                   </div>
                   <Plane className="w-8 h-8 text-blue-200" />
                 </div>
@@ -77,8 +134,8 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100">Countries Visited</p>
-                    <p className="text-2xl font-bold">{currentUser.countriesVisited}</p>
+                    <p className="text-green-100">Destinations</p>
+                    <p className="text-2xl font-bold">{userStats.countriesVisited}</p>
                   </div>
                   <Globe className="w-8 h-8 text-green-200" />
                 </div>
@@ -90,7 +147,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-orange-100">Total Budget</p>
-                    <p className="text-2xl font-bold">${currentUser.totalBudget.toLocaleString()}</p>
+                    <p className="text-2xl font-bold">${userStats.totalBudget.toLocaleString()}</p>
                   </div>
                   <Wallet className="w-8 h-8 text-orange-200" />
                 </div>
@@ -101,8 +158,8 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100">Shared Plans</p>
-                    <p className="text-2xl font-bold">{currentUser.sharedPlans}</p>
+                    <p className="text-purple-100">Planning Trips</p>
+                    <p className="text-2xl font-bold">{userStats.sharedPlans}</p>
                   </div>
                   <Users className="w-8 h-8 text-purple-200" />
                 </div>
@@ -139,11 +196,11 @@ export default function Dashboard() {
                   </Card>
                 ) : (
                   upcomingTrips.map((trip) => (
-                    <Card key={trip.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <Card key={trip.$id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="md:flex">
                         <div className="md:w-1/3">
                           <img
-                            src={trip.coverImage || "/placeholder.svg"}
+                            src={trip.image || "/placeholder.svg"}
                             alt={trip.name}
                             className="w-full h-48 md:h-full object-cover"
                           />
@@ -161,37 +218,35 @@ export default function Dashboard() {
                               </div>
                               <div className="flex items-center text-muted-foreground">
                                 <MapPin className="w-4 h-4 mr-1" />
-                                <span className="text-sm">{trip.destinationCount} destinations</span>
+                                <span className="text-sm">{trip.destination}</span>
                               </div>
                             </div>
-                            <Badge variant={trip.status === "upcoming" ? "default" : "secondary"}>
+                            <Badge variant={trip.status === "ongoing" ? "default" : "secondary"}>
                               {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
                             </Badge>
                           </div>
 
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span>Budget Progress</span>
-                              <span>
-                                ${trip.spent.toLocaleString()} / ${trip.totalBudget.toLocaleString()}
-                              </span>
+                              <span>Budget Allocated</span>
+                              <span>${trip.budget.toLocaleString()}</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-gradient-to-r from-blue-500 to-orange-500 h-2 rounded-full"
-                                style={{ width: `${Math.min((trip.spent / trip.totalBudget) * 100, 100)}%` }}
+                                style={{ width: `${trip.status === 'planning' ? 10 : 50}%` }}
                               />
                             </div>
                           </div>
 
                           <div className="flex space-x-2 mt-4">
-                            <Link href={`/trips/${trip.id}`}>
+                            <Link href={`/trips/${trip.$id}`}>
                               <Button size="sm" variant="outline">
                                 <Calendar className="w-4 h-4 mr-1" />
                                 View Details
                               </Button>
                             </Link>
-                            <Link href={`/trips/${trip.id}/itinerary`}>
+                            <Link href={`/trips/${trip.$id}/itinerary`}>
                               <Button size="sm" variant="outline">
                                 <MapPin className="w-4 h-4 mr-1" />
                                 Edit Itinerary
@@ -318,7 +373,7 @@ export default function Dashboard() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Total Budget</span>
-                    <span className="font-semibold">${currentUser.totalBudget.toLocaleString()}</span>
+                    <span className="font-semibold">${userStats.totalBudget.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Active Trips</span>
@@ -327,7 +382,7 @@ export default function Dashboard() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Avg. Trip Cost</span>
                     <span className="font-semibold">
-                      ${Math.round(currentUser.totalBudget / Math.max(currentUser.totalTrips, 1)).toLocaleString()}
+                      ${Math.round(userStats.totalBudget / Math.max(userStats.totalTrips, 1)).toLocaleString()}
                     </span>
                   </div>
                   <Link href="/trips">

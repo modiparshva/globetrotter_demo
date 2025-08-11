@@ -1,5 +1,6 @@
 "use client"
 import { useParams, useRouter } from "next/navigation"
+import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,6 +15,19 @@ export default function TripDetails() {
   const tripId = Number.parseInt(params.id as string)
 
   const tripData = getTripWithDetails(tripId)
+
+  // INR formatter
+  const formatINR = useMemo(() => 
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }), []
+  )
+
+  const formatNumber = useMemo(() => 
+    new Intl.NumberFormat("en-IN"), []
+  )
 
   if (!tripData) {
     return (
@@ -30,7 +44,7 @@ export default function TripDetails() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("en-IN", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -41,7 +55,7 @@ export default function TripDetails() {
   const formatDateRange = (start: string, end: string) => {
     const startDate = new Date(start)
     const endDate = new Date(end)
-    return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+    return `${startDate.toLocaleDateString("en-IN")} - ${endDate.toLocaleDateString("en-IN")}`
   }
 
   const totalActivitiesCost = tripData.stops.reduce((total, stop) => {
@@ -100,25 +114,25 @@ export default function TripDetails() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{tripData.stops.length}</div>
+                    <div className="text-2xl font-bold text-blue-600">{formatNumber.format(tripData.stops.length)}</div>
                     <div className="text-sm text-muted-foreground">Destinations</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">
-                      {Math.ceil(
+                      {formatNumber.format(Math.ceil(
                         (new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) /
                           (1000 * 60 * 60 * 24),
-                      )}
+                      ))}
                     </div>
                     <div className="text-sm text-muted-foreground">Days</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">${tripData.totalBudget.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-orange-600">{formatINR.format(tripData.totalBudget)}</div>
                     <div className="text-sm text-muted-foreground">Budget</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">
-                      {tripData.stops.reduce((total, stop) => total + stop.activities.length, 0)}
+                      {formatNumber.format(tripData.stops.reduce((total, stop) => total + stop.activities.length, 0))}
                     </div>
                     <div className="text-sm text-muted-foreground">Activities</div>
                   </div>
@@ -128,32 +142,32 @@ export default function TripDetails() {
           </div>
 
           <div className="space-y-6">
-            {/* Budget Overview */}
+            {/* Budget Overview in INR */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <DollarSign className="w-5 h-5 mr-2" />
-                  Budget Overview
+                  Budget Overview (INR)
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Total Budget</span>
-                    <span className="font-semibold">${tripData.totalBudget.toLocaleString()}</span>
+                    <span className="font-semibold">{formatINR.format(tripData.totalBudget)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Spent</span>
-                    <span className="font-semibold">${tripData.spent.toLocaleString()}</span>
+                    <span className="font-semibold">{formatINR.format(tripData.spent)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Activities Cost</span>
-                    <span className="font-semibold">${totalActivitiesCost.toLocaleString()}</span>
+                    <span className="font-semibold">{formatINR.format(totalActivitiesCost)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Remaining</span>
                     <span className="font-semibold text-green-600">
-                      ${(tripData.totalBudget - tripData.spent).toLocaleString()}
+                      {formatINR.format(tripData.totalBudget - tripData.spent)}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -214,7 +228,7 @@ export default function TripDetails() {
                 <Card className="p-8 text-center">
                   <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No destinations added yet</h3>
-                  <p className="text-gray-600 mb-4">Start building your itinerary by adding destinations</p>
+                  <p className="text-gray-600 mb-4">Start building your Indian adventure itinerary</p>
                   <Link href={`/trips/${tripId}/itinerary`}>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
@@ -239,11 +253,10 @@ export default function TripDetails() {
                               </div>
                               <div>
                                 <CardTitle>
-                                  {city.name}, {city.country}
+                                  {city.name}, {city.country || "India"}
                                 </CardTitle>
                                 <CardDescription>
-                                  {formatDateRange(stop.startDate, stop.endDate)} • Budget: $
-                                  {stop.budget.toLocaleString()}
+                                  {formatDateRange(stop.startDate, stop.endDate)} • Budget: {formatINR.format(stop.budget)}
                                 </CardDescription>
                               </div>
                             </div>
@@ -274,11 +287,11 @@ export default function TripDetails() {
                                         <div>
                                           <span className="font-medium">{activityDetails.name}</span>
                                           <div className="text-xs text-muted-foreground">
-                                            {activity.scheduledDate} at {activity.scheduledTime}
+                                            {new Date(activity.scheduledDate).toLocaleDateString("en-IN")} at {activity.scheduledTime}
                                           </div>
                                         </div>
                                       </div>
-                                      <Badge variant="outline">${activity.cost}</Badge>
+                                      <Badge variant="outline">{formatINR.format(activity.cost)}</Badge>
                                     </div>
                                   )
                                 })}
@@ -320,10 +333,10 @@ export default function TripDetails() {
                             <Clock className="w-3 h-3 mr-1" />
                             {activityDetails.durationHours}h
                           </div>
-                          <Badge variant="outline">${activity.cost}</Badge>
+                          <Badge variant="outline">{formatINR.format(activity.cost)}</Badge>
                         </div>
                         <div className="text-xs text-muted-foreground mt-2">
-                          {activity.scheduledDate} at {activity.scheduledTime}
+                          {new Date(activity.scheduledDate).toLocaleDateString("en-IN")} at {activity.scheduledTime}
                         </div>
                       </CardContent>
                     </Card>
@@ -334,7 +347,7 @@ export default function TripDetails() {
                 <div className="col-span-full text-center py-8">
                   <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No activities planned yet</h3>
-                  <p className="text-gray-600 mb-4">Add some exciting activities to your trip</p>
+                  <p className="text-gray-600 mb-4">Add some exciting Indian experiences to your trip</p>
                   <Link href={`/search/activities`}>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
@@ -350,7 +363,7 @@ export default function TripDetails() {
             <Card>
               <CardHeader>
                 <CardTitle>Trip Notes</CardTitle>
-                <CardDescription>Keep track of important information about your trip</CardDescription>
+                <CardDescription>Keep track of important information about your Indian journey</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

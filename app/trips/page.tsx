@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,19 @@ export default function MyTrips() {
   const [trips, setTrips] = useState<Trip[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
+
+  // INR formatter
+  const formatINR = useMemo(() => 
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }), []
+  )
+
+  const formatNumber = useMemo(() => 
+    new Intl.NumberFormat("en-IN"), []
+  )
 
   // Load trips on component mount
   useEffect(() => {
@@ -55,8 +68,8 @@ export default function MyTrips() {
   }
 
   const formatDateRange = (startDate: string, endDate: string) => {
-    const start = new Date(startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    const end = new Date(endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    const start = new Date(startDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })
+    const end = new Date(endDate).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })
     return `${start} - ${end}`
   }
 
@@ -66,8 +79,8 @@ export default function MyTrips() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Trips</h1>
-            <p className="text-muted-foreground">Manage and organize your travel adventures</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Indian Adventures 🇮🇳</h1>
+            <p className="text-muted-foreground">Manage and organize your incredible India journeys</p>
           </div>
           <Button
             asChild
@@ -85,7 +98,7 @@ export default function MyTrips() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search trips..."
+              placeholder="Search your Indian trips..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -119,12 +132,12 @@ export default function MyTrips() {
                 <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No trips found</h3>
                 <p className="text-gray-600 mb-4">
-                  {searchQuery ? "Try adjusting your search terms" : "Start planning your first adventure!"}
+                  {searchQuery ? "Try adjusting your search terms" : "Start exploring incredible India!"}
                 </p>
                 <Button asChild>
                   <Link href="/trips/create">
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Trip
+                    Create Your First Indian Adventure
                   </Link>
                 </Button>
               </div>
@@ -183,10 +196,10 @@ export default function MyTrips() {
                         </div>
                         <div className="flex items-center">
                           <MapPin className="w-4 h-4 mr-2" />
-                          {trip.destinationCount} destinations
+                          {formatNumber.format(trip.destinationCount)} destinations
                         </div>
                         <div className="flex items-center justify-between">
-                          <span>Budget: ${trip.totalBudget.toLocaleString()}</span>
+                          <span>Budget: {formatINR.format(trip.totalBudget)}</span>
                         </div>
                       </div>
 

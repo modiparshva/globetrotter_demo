@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -38,6 +38,19 @@ export default function TripItinerary() {
     notes: "",
   })
 
+  // INR formatter
+  const formatINR = useMemo(() => 
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }), []
+  )
+
+  const formatNumber = useMemo(() => 
+    new Intl.NumberFormat("en-IN"), []
+  )
+
   if (!tripData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center">
@@ -73,7 +86,7 @@ export default function TripItinerary() {
   const formatDateRange = (start: string, end: string) => {
     const startDate = new Date(start)
     const endDate = new Date(end)
-    return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+    return `${startDate.toLocaleDateString("en-IN")} - ${endDate.toLocaleDateString("en-IN")}`
   }
 
   return (
@@ -89,7 +102,7 @@ export default function TripItinerary() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Build Itinerary</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Build Your Indian Journey</h1>
               <p className="text-muted-foreground mt-1">{tripData.name}</p>
             </div>
           </div>
@@ -103,7 +116,7 @@ export default function TripItinerary() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Stop</DialogTitle>
-                <DialogDescription>Add a new destination to your trip itinerary</DialogDescription>
+                <DialogDescription>Add a new Indian destination to your trip itinerary</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -113,12 +126,12 @@ export default function TripItinerary() {
                     onValueChange={(value) => setNewStop((prev) => ({ ...prev, cityId: value }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose a city" />
+                      <SelectValue placeholder="Choose an Indian city" />
                     </SelectTrigger>
                     <SelectContent>
                       {allCities.map((city) => (
                         <SelectItem key={city.id} value={city.id.toString()}>
-                          {city.name}, {city.country}
+                          {city.name}, {city.country || "India"}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -145,22 +158,27 @@ export default function TripItinerary() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="budget">Budget ($)</Label>
-                  <Input
-                    id="budget"
-                    type="number"
-                    placeholder="0"
-                    value={newStop.budget}
-                    onChange={(e) =>
-                      setNewStop((prev) => ({ ...prev, budget: Number.parseFloat(e.target.value) || 0 }))
-                    }
-                  />
+                  <Label htmlFor="budget">Budget (INR)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₹</span>
+                    <Input
+                      id="budget"
+                      type="number"
+                      placeholder="15000"
+                      value={newStop.budget}
+                      onChange={(e) =>
+                        setNewStop((prev) => ({ ...prev, budget: Number.parseFloat(e.target.value) || 0 }))
+                      }
+                      className="pl-8"
+                      step="500"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notes</Label>
                   <Textarea
                     id="notes"
-                    placeholder="Any special notes for this destination..."
+                    placeholder="Any special notes for this Indian destination..."
                     value={newStop.notes}
                     onChange={(e) => setNewStop((prev) => ({ ...prev, notes: e.target.value }))}
                   />
@@ -184,27 +202,27 @@ export default function TripItinerary() {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{tripData.stops.length}</div>
+                <div className="text-2xl font-bold text-blue-600">{formatNumber.format(tripData.stops.length)}</div>
                 <div className="text-sm text-muted-foreground">Destinations</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {Math.ceil(
+                  {formatNumber.format(Math.ceil(
                     (new Date(tripData.endDate).getTime() - new Date(tripData.startDate).getTime()) /
                       (1000 * 60 * 60 * 24),
-                  )}
+                  ))}
                 </div>
                 <div className="text-sm text-muted-foreground">Days</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">
-                  ${tripData.stops.reduce((total, stop) => total + stop.budget, 0).toLocaleString()}
+                  {formatINR.format(tripData.stops.reduce((total, stop) => total + stop.budget, 0))}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Budget</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {tripData.stops.reduce((total, stop) => total + stop.activities.length, 0)}
+                  {formatNumber.format(tripData.stops.reduce((total, stop) => total + stop.activities.length, 0))}
                 </div>
                 <div className="text-sm text-muted-foreground">Activities</div>
               </div>
@@ -217,13 +235,13 @@ export default function TripItinerary() {
           {tripData.stops.length === 0 ? (
             <Card className="p-12 text-center">
               <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Start Building Your Itinerary</h3>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">Start Building Your Indian Itinerary</h3>
               <p className="text-gray-600 mb-6">
-                Add destinations to create your perfect travel plan. You can reorder them later.
+                Add Indian destinations to create your perfect travel plan across incredible India. You can reorder them later.
               </p>
               <Button onClick={() => setIsAddingStop(true)} size="lg">
                 <Plus className="w-5 h-5 mr-2" />
-                Add Your First Stop
+                Add Your First Indian Stop
               </Button>
             </Card>
           ) : (
@@ -254,14 +272,14 @@ export default function TripItinerary() {
                               <CardTitle className="text-xl">{city.name}</CardTitle>
                               <CardDescription className="flex items-center">
                                 <MapPin className="w-4 h-4 mr-1" />
-                                {city.country} • {formatDateRange(stop.startDate, stop.endDate)}
+                                {city.country || "India"} • {formatDateRange(stop.startDate, stop.endDate)}
                               </CardDescription>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="flex items-center">
-                            <DollarSign className="w-3 h-3 mr-1" />${stop.budget.toLocaleString()}
+                            <DollarSign className="w-3 h-3 mr-1" />{formatINR.format(stop.budget)}
                           </Badge>
                           <Button variant="ghost" size="sm">
                             <Edit className="w-4 h-4" />
@@ -281,16 +299,16 @@ export default function TripItinerary() {
                             <div className="flex items-center text-sm">
                               <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
                               <span>
-                                {Math.ceil(
+                                {formatNumber.format(Math.ceil(
                                   (new Date(stop.endDate).getTime() - new Date(stop.startDate).getTime()) /
                                     (1000 * 60 * 60 * 24),
-                                )}{" "}
+                                ))}{" "}
                                 days
                               </span>
                             </div>
                             <div className="flex items-center text-sm">
                               <DollarSign className="w-4 h-4 mr-2 text-muted-foreground" />
-                              <span>Budget: ${stop.budget.toLocaleString()}</span>
+                              <span>Budget: {formatINR.format(stop.budget)}</span>
                             </div>
                             {stop.notes && (
                               <div className="text-sm text-muted-foreground">
@@ -310,14 +328,14 @@ export default function TripItinerary() {
 
                         {/* Activities */}
                         <div>
-                          <h4 className="font-medium mb-3">Planned Activities ({stop.activities.length})</h4>
+                          <h4 className="font-medium mb-3">Planned Activities ({formatNumber.format(stop.activities.length)})</h4>
                           {stop.activities.length === 0 ? (
                             <div className="text-center py-6 border-2 border-dashed border-gray-200 rounded-lg">
                               <Plus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                               <p className="text-sm text-gray-600">No activities planned yet</p>
                               <Link href={`/search/activities?city=${city.id}`}>
                                 <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-                                  Browse Activities
+                                  Browse Indian Experiences
                                 </Button>
                               </Link>
                             </div>
@@ -340,13 +358,13 @@ export default function TripItinerary() {
                                       <div>
                                         <div className="font-medium text-sm">{activityDetails.name}</div>
                                         <div className="text-xs text-muted-foreground">
-                                          {activity.scheduledDate} at {activity.scheduledTime}
+                                          {new Date(activity.scheduledDate).toLocaleDateString("en-IN")} at {activity.scheduledTime}
                                         </div>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Badge variant="outline" className="text-xs">
-                                        ${activity.cost}
+                                        {formatINR.format(activity.cost)}
                                       </Badge>
                                       <Button variant="ghost" size="sm">
                                         <Edit className="w-3 h-3" />
@@ -376,7 +394,7 @@ export default function TripItinerary() {
               className="border-dashed border-2"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Add Another Stop
+              Add Another Indian Stop
             </Button>
           </div>
         )}

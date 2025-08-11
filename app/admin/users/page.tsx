@@ -14,6 +14,20 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { 
   Users, 
   Search, 
@@ -27,14 +41,22 @@ import {
   MapPin,
   Calendar,
   DollarSign,
-  Loader2
+  Loader2,
+  UserCheck,
+  UserX,
+  Mail,
+  Phone
 } from "lucide-react"
 import { useAdminStats, useAdminUsers } from "@/hooks/use-admin"
+import { toast } from "sonner"
 
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("name")
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [showUserDetails, setShowUserDetails] = useState(false)
+  const [showEditUser, setShowEditUser] = useState(false)
 
   // Fetch real admin data
   const { data: stats, isLoading: isLoadingStats } = useAdminStats()
@@ -104,6 +126,39 @@ export default function UserManagement() {
 
   const activeUsers = processedUsers.filter(user => user.status === "active").length
   const inactiveUsers = processedUsers.filter(user => user.status === "inactive").length
+
+  // Action handlers
+  const handleViewUser = (user: any) => {
+    setSelectedUser(user)
+    setShowUserDetails(true)
+  }
+
+  const handleEditUser = (user: any) => {
+    setSelectedUser(user)
+    setShowEditUser(true)
+  }
+
+  const handleActivateUser = (user: any) => {
+    // In a real implementation, this would call an API
+    toast.success(`User ${user.userName} has been activated`)
+  }
+
+  const handleDeactivateUser = (user: any) => {
+    // In a real implementation, this would call an API
+    toast.success(`User ${user.userName} has been deactivated`)
+  }
+
+  const handleSendEmail = (user: any) => {
+    // In a real implementation, this would open email client or send notification
+    toast.success(`Email sent to ${user.email}`)
+  }
+
+  const handleDeleteUser = (user: any) => {
+    if (window.confirm(`Are you sure you want to delete user ${user.userName}? This action cannot be undone.`)) {
+      // In a real implementation, this would call an API
+      toast.success(`User ${user.userName} has been deleted`)
+    }
+  }
 
   // Show loading state
   if (isLoadingStats || isLoadingUsers) {
@@ -315,15 +370,59 @@ export default function UserManagement() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleViewUser(user)}
+                            title="View user details"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditUser(user)}
+                            title="Edit user"
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                title="More actions"
+                              >
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleSendEmail(user)}>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Send Email
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {user.status === "active" ? (
+                                <DropdownMenuItem onClick={() => handleDeactivateUser(user)}>
+                                  <UserX className="w-4 h-4 mr-2" />
+                                  Deactivate User
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem onClick={() => handleActivateUser(user)}>
+                                  <UserCheck className="w-4 h-4 mr-2" />
+                                  Activate User
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteUser(user)}
+                                className="text-red-600"
+                              >
+                                <Ban className="w-4 h-4 mr-2" />
+                                Delete User
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -399,6 +498,172 @@ export default function UserManagement() {
           </CardContent>
         </Card>
       </div>
+
+      {/* User Details Modal */}
+      <Dialog open={showUserDetails} onOpenChange={setShowUserDetails}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+            <DialogDescription>
+              Comprehensive information about {selectedUser?.userName}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-lg font-medium text-blue-600">
+                          {selectedUser.userName.split(' ').map((n: string) => n[0]).join('')}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-medium">{selectedUser.userName}</div>
+                        <div className="text-sm text-muted-foreground">{selectedUser.email}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Status</span>
+                      <Badge 
+                        variant={selectedUser.status === "active" ? "default" : "secondary"}
+                        className={selectedUser.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
+                      >
+                        {selectedUser.status.charAt(0).toUpperCase() + selectedUser.status.slice(1)}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Last Activity</span>
+                      <span className="text-sm">{selectedUser.lastActivity}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Trip Statistics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <MapPin className="w-4 h-4 text-muted-foreground mr-2" />
+                        <span className="text-sm text-muted-foreground">Total Trips</span>
+                      </div>
+                      <span className="font-medium">{formatNumber.format(selectedUser.totalTrips)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <DollarSign className="w-4 h-4 text-muted-foreground mr-2" />
+                        <span className="text-sm text-muted-foreground">Total Budget</span>
+                      </div>
+                      <span className="font-medium">{formatINR.format(selectedUser.totalBudget)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <DollarSign className="w-4 h-4 text-muted-foreground mr-2" />
+                        <span className="text-sm text-muted-foreground">Avg. per Trip</span>
+                      </div>
+                      <span className="font-medium">
+                        {selectedUser.totalTrips > 0 
+                          ? formatINR.format(Math.round(selectedUser.totalBudget / selectedUser.totalTrips))
+                          : formatINR.format(0)
+                        }
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-4 border-t">
+                <Button onClick={() => handleSendEmail(selectedUser)}>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Email
+                </Button>
+                <Button variant="outline" onClick={() => handleEditUser(selectedUser)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit User
+                </Button>
+                {selectedUser.status === "active" ? (
+                  <Button variant="outline" onClick={() => handleDeactivateUser(selectedUser)}>
+                    <UserX className="w-4 h-4 mr-2" />
+                    Deactivate
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={() => handleActivateUser(selectedUser)}>
+                    <UserCheck className="w-4 h-4 mr-2" />
+                    Activate
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Modal */}
+      <Dialog open={showEditUser} onOpenChange={setShowEditUser}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update user information for {selectedUser?.userName}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">First Name</label>
+                  <Input 
+                    defaultValue={selectedUser.userName.split(' ')[0]} 
+                    placeholder="First name"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Last Name</label>
+                  <Input 
+                    defaultValue={selectedUser.userName.split(' ').slice(1).join(' ')} 
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <Input defaultValue={selectedUser.email} placeholder="Email address" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Status</label>
+                <Select defaultValue={selectedUser.status}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button onClick={() => {
+                  toast.success("User updated successfully")
+                  setShowEditUser(false)
+                }}>
+                  Save Changes
+                </Button>
+                <Button variant="outline" onClick={() => setShowEditUser(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

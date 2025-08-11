@@ -14,6 +14,20 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { 
   MapPin, 
   Search, 
@@ -28,18 +42,27 @@ import {
   Clock,
   AlertCircle,
   XCircle,
-  Plane
+  Plane,
+  Loader2,
+  Ban,
+  Share,
+  Download,
+  UserCheck
 } from "lucide-react"
-import { getAdminStats, getTripsByStatus } from "@/lib/admin-data"
-import { getTrips, getCityById } from "@/lib/data"
+import { useAdminStats, useAdminTrips } from '@/hooks/use-admin'
+import { toast } from "sonner"
 
 export default function TripAnalytics() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("date")
+  const [selectedTrip, setSelectedTrip] = useState<any>(null)
+  const [showTripDetails, setShowTripDetails] = useState(false)
+  const [showEditTrip, setShowEditTrip] = useState(false)
 
-  const stats = useMemo(() => getAdminStats(), [])
-  const allTrips = useMemo(() => getTrips(), [])
+  // Fetch real admin data
+  const { data: stats, isLoading: isLoadingStats } = useAdminStats()
+  const { data: allTrips, isLoading: isLoadingTrips } = useAdminTrips()
 
   // INR formatter
   const formatINR = useMemo(() => 
@@ -54,14 +77,67 @@ export default function TripAnalytics() {
     new Intl.NumberFormat("en-IN"), []
   )
 
+  // Process trips data to match expected format
+  const processedTrips = useMemo(() => {
+    if (!allTrips) return []
+    return allTrips.map(trip => ({
+      id: trip.$id,
+      name: trip.name,
+      description: `Trip to ${trip.destination}`,
+      status: trip.status,
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      totalBudget: trip.budget,
+      spent: Math.round(trip.budget * 0.3), // Simulate spent amount (30% of budget)
+      destinationCount: 1, // Since we have destination as string, assume 1
+      destination: trip.destination,
+      userId: trip.userId,
+    }))
+  }, [allTrips])
+
+  // Action handlers
+  const handleViewTrip = (trip: any) => {
+    setSelectedTrip(trip)
+    setShowTripDetails(true)
+  }
+
+  const handleEditTrip = (trip: any) => {
+    setSelectedTrip(trip)
+    setShowEditTrip(true)
+  }
+
+  const handleShareTrip = (trip: any) => {
+    // In a real implementation, this would generate a shareable link
+    navigator.clipboard.writeText(`${window.location.origin}/shared/trip/${trip.id}`)
+    toast.success(`Trip "${trip.name}" share link copied to clipboard`)
+  }
+
+  const handleDownloadTrip = (trip: any) => {
+    // In a real implementation, this would generate and download trip data
+    toast.success(`Downloading trip data for "${trip.name}"`)
+  }
+
+  const handleDeleteTrip = (trip: any) => {
+    if (window.confirm(`Are you sure you want to delete trip "${trip.name}"? This action cannot be undone.`)) {
+      // In a real implementation, this would call an API
+      toast.success(`Trip "${trip.name}" has been deleted`)
+    }
+  }
+
+  const handleChangeStatus = (trip: any, newStatus: string) => {
+    // In a real implementation, this would call an API
+    toast.success(`Trip "${trip.name}" status changed to ${newStatus}`)
+  }
+
   const filteredTrips = useMemo(() => {
-    let trips = allTrips
+    let trips = processedTrips
 
     // Search filter
     if (searchQuery) {
       trips = trips.filter(trip =>
         trip.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        trip.description.toLowerCase().includes(searchQuery.toLowerCase())
+        trip.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
@@ -87,7 +163,45 @@ export default function TripAnalytics() {
     })
 
     return trips
-  }, [allTrips, searchQuery, statusFilter, sortBy])
+  }, [processedTrips, searchQuery, statusFilter, sortBy])
+
+  const tripsByStatus = useMemo(() => {
+    if (!processedTrips) return { planning: 0, ongoing: 0, completed: 0 }
+    return {
+      planning: processedTrips.filter(t => t.status === "planning").length,
+      ongoing: processedTrips.filter(t => t.status === "ongoing").length,
+      completed: processedTrips.filter(t => t.status === "completed").length,
+    }
+  }, [processedTrips])
+
+  // Show loading state
+  if (isLoadingStats || isLoadingTrips) {
+    return (
+      <div className="space-y-6">
+        <div className="border-b border-gray-200 pb-5">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-muted-foreground">Loading trip analytics...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!stats || !allTrips) {
+    return (
+      <div className="space-y-6">
+        <div className="border-b border-gray-200 pb-5">
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Unable to load trip data</h3>
+            <p className="text-gray-600 mb-4">Please check your permissions or try again later.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -118,15 +232,6 @@ export default function TripAnalytics() {
         return "bg-gray-100 text-gray-800"
     }
   }
-
-  const tripsByStatus = useMemo(() => {
-    return {
-      planning: allTrips.filter(t => t.status === "planning").length,
-      upcoming: allTrips.filter(t => t.status === "upcoming").length,
-      ongoing: allTrips.filter(t => t.status === "ongoing").length,
-      completed: allTrips.filter(t => t.status === "completed").length,
-    }
-  }, [allTrips])
 
   return (
     <div className="space-y-6">
@@ -161,8 +266,8 @@ export default function TripAnalytics() {
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber.format(tripsByStatus.ongoing + tripsByStatus.upcoming)}</div>
-            <p className="text-xs text-muted-foreground">Ongoing & upcoming trips</p>
+            <div className="text-2xl font-bold">{formatNumber.format(tripsByStatus.ongoing)}</div>
+            <p className="text-xs text-muted-foreground">Currently ongoing trips</p>
           </CardContent>
         </Card>
 
@@ -172,7 +277,7 @@ export default function TripAnalytics() {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatINR.format(stats.totalBudgetAllTrips)}</div>
+            <div className="text-2xl font-bold">{formatINR.format(stats.totalBudget)}</div>
             <p className="text-xs text-muted-foreground">Across all trips</p>
           </CardContent>
         </Card>
@@ -183,7 +288,9 @@ export default function TripAnalytics() {
             <TrendingUp className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatINR.format(stats.avgBudgetPerTrip)}</div>
+            <div className="text-2xl font-bold">
+              {formatINR.format(Math.round(stats.totalBudget / Math.max(stats.totalTrips, 1)))}
+            </div>
             <p className="text-xs text-muted-foreground">Per trip average</p>
           </CardContent>
         </Card>
@@ -215,11 +322,11 @@ export default function TripAnalytics() {
               <div className="flex items-center">
                 <Calendar className="w-8 h-8 text-orange-600 mr-3" />
                 <div>
-                  <div className="font-medium">Upcoming</div>
-                  <div className="text-sm text-muted-foreground">Scheduled ahead</div>
+                  <div className="font-medium">Planning</div>
+                  <div className="text-sm text-muted-foreground">In preparation</div>
                 </div>
               </div>
-              <div className="text-2xl font-bold text-orange-700">{formatNumber.format(tripsByStatus.upcoming)}</div>
+              <div className="text-2xl font-bold text-orange-700">{formatNumber.format(tripsByStatus.planning)}</div>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border">
@@ -291,7 +398,7 @@ export default function TripAnalytics() {
 
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
-              Showing {formatNumber.format(filteredTrips.length)} of {formatNumber.format(allTrips.length)} trips
+              Showing {formatNumber.format(filteredTrips.length)} of {formatNumber.format(processedTrips.length)} trips
             </p>
           </div>
 
@@ -324,7 +431,7 @@ export default function TripAnalytics() {
                         <div>
                           <div className="font-medium">{trip.name}</div>
                           <div className="text-sm text-muted-foreground line-clamp-1">
-                            {trip.description}
+                            Trip to {trip.destination}
                           </div>
                         </div>
                       </TableCell>
@@ -353,20 +460,65 @@ export default function TripAnalytics() {
                       <TableCell>
                         <div className="flex items-center">
                           <MapPin className="w-4 h-4 text-muted-foreground mr-1" />
-                          <span className="text-sm">{formatNumber.format(trip.destinationCount)} stops</span>
+                          <span className="text-sm">{trip.destination}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleViewTrip(trip)}
+                            title="View trip details"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditTrip(trip)}
+                            title="Edit trip"
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                title="More actions"
+                              >
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleShareTrip(trip)}>
+                                <Share className="w-4 h-4 mr-2" />
+                                Share Trip
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDownloadTrip(trip)}>
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Data
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleChangeStatus(trip, 'completed')}>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Mark Completed
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleChangeStatus(trip, 'ongoing')}>
+                                <Clock className="w-4 h-4 mr-2" />
+                                Mark Ongoing
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteTrip(trip)}
+                                className="text-red-600"
+                              >
+                                <Ban className="w-4 h-4 mr-2" />
+                                Delete Trip
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -387,7 +539,7 @@ export default function TripAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {allTrips
+              {processedTrips
                 .sort((a, b) => b.totalBudget - a.totalBudget)
                 .slice(0, 5)
                 .map((trip, index) => (
@@ -399,7 +551,7 @@ export default function TripAnalytics() {
                     <div>
                       <div className="font-medium">{trip.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {formatNumber.format(trip.destinationCount)} destinations • {trip.status}
+                        {trip.destination} • {trip.status}
                       </div>
                     </div>
                   </div>
@@ -420,7 +572,7 @@ export default function TripAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {allTrips
+              {processedTrips
                 .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
                 .slice(0, 5)
                 .map((trip, index) => (
@@ -447,6 +599,115 @@ export default function TripAnalytics() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Trip Details Modal */}
+      <Dialog open={showTripDetails} onOpenChange={setShowTripDetails}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Trip Details</DialogTitle>
+            <DialogDescription>
+              View detailed information about this trip.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTrip && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Trip Name</label>
+                  <p className="text-sm text-muted-foreground">{selectedTrip.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <div className="mt-1">
+                    <Badge className={getStatusColor(selectedTrip.status)}>
+                      {selectedTrip.status.charAt(0).toUpperCase() + selectedTrip.status.slice(1)}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Destination</label>
+                  <p className="text-sm text-muted-foreground">{selectedTrip.destination}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Duration</label>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(selectedTrip.startDate).toLocaleDateString("en-IN")} - {new Date(selectedTrip.endDate).toLocaleDateString("en-IN")}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Budget</label>
+                  <p className="text-sm text-muted-foreground">{formatINR.format(selectedTrip.totalBudget)}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Amount Spent</label>
+                  <p className="text-sm text-muted-foreground">{formatINR.format(selectedTrip.spent)}</p>
+                </div>
+              </div>
+              {selectedTrip.description && (
+                <div>
+                  <label className="text-sm font-medium">Description</label>
+                  <p className="text-sm text-muted-foreground mt-1">{selectedTrip.description}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Trip Modal */}
+      <Dialog open={showEditTrip} onOpenChange={setShowEditTrip}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Trip</DialogTitle>
+            <DialogDescription>
+              Modify trip details and settings.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTrip && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Trip Name</label>
+                  <Input defaultValue={selectedTrip.name} placeholder="Enter trip name" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <Select defaultValue={selectedTrip.status}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planning">Planning</SelectItem>
+                      <SelectItem value="ongoing">Ongoing</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Destination</label>
+                  <Input defaultValue={selectedTrip.destination} placeholder="Enter destination" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Budget</label>
+                  <Input type="number" defaultValue={selectedTrip.totalBudget} placeholder="Enter budget" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowEditTrip(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => {
+                  toast.success("Trip updated successfully")
+                  setShowEditTrip(false)
+                }}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

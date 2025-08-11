@@ -12,21 +12,8 @@ import { Search, MapPin, Star, DollarSign, Plus, Filter, Globe, TrendingUp } fro
 import { indianHeritageCities, indianFeaturedCities, debugCityData, type City } from "@/lib/city_data"
 import EnhancedImage from "@/components/EnhancedImage"
 
-
 // Keep some international cities for variety (optional)
 const internationalCities: City[] = [
-  {
-    id: 1001,
-    name: "Paris",
-    country: "France",
-    costIndex: 140,
-    popularityScore: 92,
-    imageUrl: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400&h=300&fit=crop&crop=center",
-    description: "City of lights, art, and romance",
-    rating: 4.6,
-    travelers: "1.8M",
-    region: "Europe"
-  },
   {
     id: 1002,
     name: "Tokyo",
@@ -277,14 +264,12 @@ export default function CitySearch() {
                 return (
                   <Card key={`featured-${city.id}`} className="overflow-hidden hover:shadow-lg transition-shadow border-orange-200">
                     <div className="relative">
-                      <img
+                      <EnhancedImage
                         src={city.imageUrl}
                         alt={city.name}
+                        cityName={city.name}
                         className="w-full h-32 object-cover"
-                        onError={(e) => {
-                          // Fallback image if URL fails
-                          (e.target as HTMLImageElement).src = "/placeholder.svg?height=150&width=400";
-                        }}
+                        onError={() => console.log(`Failed to load image for ${city.name}`)}
                       />
                       <div className="absolute top-2 right-2">
                         <Badge className="bg-orange-500 text-white">Featured</Badge>
@@ -408,14 +393,13 @@ export default function CitySearch() {
                     }`}
                   >
                     <div className="relative">
-                      <img
+                      {/* FIXED: Added cityName prop */}
+                      <EnhancedImage
                         src={city.imageUrl}
                         alt={city.name}
+                        cityName={city.name}
                         className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          // Fallback image if URL fails
-                          (e.target as HTMLImageElement).src = "/placeholder.svg?height=200&width=400";
-                        }}
+                        onError={() => console.log(`Failed to load image for ${city.name}`)}
                       />
                       <div className="absolute top-2 right-2 flex gap-2">
                         <Badge className={costLevel.color}>{costLevel.label}</Badge>

@@ -1,15 +1,14 @@
-// components/EnhancedImage.tsx - Smart Image Component with Fallbacks
-"use client"
+// components/EnhancedImage.tsx - Fixed Version
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { getFallbackImageUrl } from '@/lib/image_service';
+import React, { useState, useCallback } from "react";
+import { getFallbackImageUrl } from "@/lib/image_service";
 
 interface EnhancedImageProps {
   src: string;
   alt: string;
   cityName?: string;
   className?: string;
-  fallbackSrc?: string;
   onError?: () => void;
 }
 
@@ -18,7 +17,6 @@ export const EnhancedImage: React.FC<EnhancedImageProps> = ({
   alt,
   cityName,
   className = "",
-  fallbackSrc,
   onError
 }) => {
   const [currentSrc, setCurrentSrc] = useState(src);
@@ -30,25 +28,20 @@ export const EnhancedImage: React.FC<EnhancedImageProps> = ({
       setHasErrored(true);
 
       // Try city-specific fallback first
-      if (cityName && !fallbackSrc) {
+      if (cityName) {
         const fallback = getFallbackImageUrl(cityName);
-        setCurrentSrc(fallback);
-        onError?.();
-        return;
+        if (fallback !== currentSrc) {
+          setCurrentSrc(fallback);
+          onError?.();
+          return;
+        }
       }
 
-      // Try provided fallback
-      if (fallbackSrc && currentSrc !== fallbackSrc) {
-        setCurrentSrc(fallbackSrc);
-        onError?.();
-        return;
-      }
-
-      // Final fallback - generic heritage image
-      setCurrentSrc('https://source.unsplash.com/400x300/?india-heritage-architecture');
+      // Final fallback - default heritage image
+      setCurrentSrc('/images/cities/default-heritage.jpg');
       onError?.();
     }
-  }, [hasErrored, cityName, fallbackSrc, currentSrc, onError]);
+  }, [hasErrored, cityName, currentSrc, onError]);
 
   const handleLoad = useCallback(() => {
     setIsLoading(false);
@@ -62,16 +55,13 @@ export const EnhancedImage: React.FC<EnhancedImageProps> = ({
       <img
         src={currentSrc}
         alt={alt}
-        className={`${className} transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`${className} transition-opacity duration-300 ${
+          isLoading ? "opacity-0" : "opacity-100"
+        }`}
         onError={handleError}
         onLoad={handleLoad}
         loading="lazy"
       />
-      {hasErrored && (
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-          📷 Fallback Image
-        </div>
-      )}
     </div>
   );
 };

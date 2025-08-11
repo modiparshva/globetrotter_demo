@@ -199,39 +199,44 @@ async function setupCollections() {
       }
     }
 
-    // Add Expenses attributes
+    // Add Expenses attributes (based on actual Appwrite schema)
     const expenseAttributes = [
       { key: 'tripId', type: 'string', size: 50, required: true },
       { key: 'activityId', type: 'string', size: 50, required: false },
-      { key: 'description', type: 'string', size: 255, required: true },
-      { key: 'category', type: 'string', size: 100, required: true },
-      { key: 'date', type: 'string', size: 20, required: true },
+      { key: 'title', type: 'string', size: 255, required: false },
+      { key: 'description', type: 'string', size: 1000, required: false },
+      { key: 'category', type: 'string', size: 100, required: false },
+      { key: 'date', type: 'string', size: 20, required: false },
+      { key: 'paymentMethod', type: 'string', size: 50, required: false },
+      { key: 'currency', type: 'string', size: 10, required: false },
     ];
 
-    for (const attr of expenseAttributes) {
-      try {
-        await databases.createStringAttribute(DATABASE_ID, 'expenses', attr.key, attr.size, attr.required);
-        console.log(`✅ Expense attribute ${attr.key} created`);
-      } catch (error: any) {
-        if (error.code === 409) {
-          console.log(`ℹ️ Expense attribute ${attr.key} already exists`);
-        } else {
-          console.error(`❌ Error creating expense attribute ${attr.key}:`, error);
-        }
-      }
-    }
+    // Note: This is for documentation purposes. 
+    // The actual schema should be created in Appwrite Console with these attributes:
+    // - tripId (string, required)
+    // - activityId (string, optional)  
+    // - title (string, optional)
+    // - description (string, optional)
+    // - amount (double, default: 0)
+    // - category (string, optional)
+    // - date (string, optional)
+    // - paymentMethod (string, optional)
+    // - currency (string, optional)
+    // - isShared (boolean, optional)
+    // - tags (string array, optional)
 
-    // Add amount as float attribute
-    try {
-      await databases.createFloatAttribute(DATABASE_ID, 'expenses', 'amount', true);
-      console.log('✅ Expense amount attribute created');
-    } catch (error: any) {
-      if (error.code === 409) {
-        console.log('ℹ️ Expense amount attribute already exists');
-      } else {
-        console.error('❌ Error creating expense amount attribute:', error);
-      }
-    }
+    console.log('ℹ️ Expenses collection attributes should be created in Appwrite Console:');
+    console.log('- tripId (string, required)');
+    console.log('- activityId (string, optional)');
+    console.log('- title (string, optional)');
+    console.log('- description (string, optional)');
+    console.log('- amount (double, default: 0)');
+    console.log('- category (string, optional)');
+    console.log('- date (string, optional)');
+    console.log('- paymentMethod (string, optional)');
+    console.log('- currency (string, optional)');
+    console.log('- isShared (boolean, optional)');
+    console.log('- tags (string array, optional)');
 
     // Create Shared Trips Collection
     try {

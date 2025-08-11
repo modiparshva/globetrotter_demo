@@ -35,13 +35,15 @@ import Link from "next/link"
 interface Activity {
   $id: string
   tripId: string
+  stopId: string
   name: string
   description: string
   location: string
-  date: string
-  time: string
-  category: string
+  scheduledDate: string
+  scheduledTime: string
+  duration: number
   cost: number
+  category: string
   $createdAt: string
   $updatedAt: string
 }
@@ -136,9 +138,12 @@ export default function TripCalendar() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [hasLoadedData, setHasLoadedData] = useState(false)
 
-  // Helper function to format date as YYYY-MM-DD
+  // Helper function to format date as YYYY-MM-DD (using local timezone)
   const formatDate = (date: Date): string => {
-    return date.toISOString().split('T')[0]
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
   }
 
   // Helper function to get events for a specific date
@@ -214,21 +219,21 @@ export default function TripCalendar() {
       
       // Fetch activities (with error handling)
       try {
-        // First try with queries
+        // First try with queries - but activities are linked to stops, not trips directly
         let activitiesResponse
         try {
+          // Get all activities first, then filter by trip's stops
           activitiesResponse = await databases.listDocuments(
             DATABASE_ID,
             ACTIVITIES_COLLECTION_ID,
             [
-              Query.equal('tripId', tripId),
-              Query.orderAsc('date'),
-              Query.orderAsc('time')
+              Query.orderAsc('scheduledDate'),
+              Query.orderAsc('scheduledTime')
             ]
           )
         } catch (queryError: any) {
           console.warn("Query failed for activities, trying without filters:", queryError.message)
-          // If queries fail, try without filters and filter in JS
+          // If queries fail, try without filters
           activitiesResponse = await databases.listDocuments(
             DATABASE_ID,
             ACTIVITIES_COLLECTION_ID
@@ -237,9 +242,22 @@ export default function TripCalendar() {
         
         let activities = activitiesResponse.documents as unknown as Activity[]
         
-        // Filter by tripId in JavaScript if query failed
-        if (activities.length > 0 && activities[0].tripId !== tripId) {
-          activities = activities.filter(activity => activity.tripId === tripId)
+        // We need to get itinerary stops for this trip first to filter activities
+        let tripStopIds: string[] = []
+        try {
+          const stopsResponse = await databases.listDocuments(
+            DATABASE_ID,
+            ITINERARY_COLLECTION_ID,
+            [Query.equal('tripId', tripId)]
+          )
+          tripStopIds = stopsResponse.documents.map(stop => stop.$id)
+        } catch (stopsError) {
+          console.warn("Could not fetch trip stops for activity filtering")
+        }
+        
+        // Filter activities by trip's stops
+        if (tripStopIds.length > 0) {
+          activities = activities.filter(activity => tripStopIds.includes(activity.stopId))
         }
         
         console.log('Fetched activities:', activities.length)
@@ -252,8 +270,8 @@ export default function TripCalendar() {
             id: activity.$id,
             title: activity.name,
             description: activity.description,
-            date: activity.date,
-            time: activity.time,
+            date: activity.scheduledDate,
+            time: activity.scheduledTime,
             type: 'activity',
             category: activity.category,
             amount: activity.cost,

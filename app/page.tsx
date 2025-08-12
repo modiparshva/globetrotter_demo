@@ -102,12 +102,12 @@ const recentActivities = [
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
-  const router = useRouter()
+  // const router = useRouter()
 
-  useEffect(() => {
-    // Redirect to dashboard on home page access
-    router.push("/dashboard")
-  }, [router])
+  // useEffect(() => {
+  //   // Redirect to dashboard on home page access
+  //   router.push("/dashboard")
+  // }, [router])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">

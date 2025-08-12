@@ -126,7 +126,7 @@ export default function TripAnalytics() {
     }
   }
 
-  const handleChangeStatus = async (trip: any, newStatus: 'planning' | 'ongoing' | 'completed') => {
+  const handleChangeStatus = async (trip: any, newStatus: 'planning' | 'upcoming' | 'ongoing' | 'completed') => {
     if (updatingTripId === trip.id) return // Prevent multiple calls
     
     setUpdatingTripId(trip.id)
@@ -181,9 +181,10 @@ export default function TripAnalytics() {
   }, [processedTrips, searchQuery, statusFilter, sortBy])
 
   const tripsByStatus = useMemo(() => {
-    if (!processedTrips) return { planning: 0, ongoing: 0, completed: 0 }
+    if (!processedTrips) return { planning: 0, upcoming: 0, ongoing: 0, completed: 0 }
     return {
       planning: processedTrips.filter(t => t.status === "planning").length,
+      upcoming: processedTrips.filter(t => t.status === "upcoming").length,
       ongoing: processedTrips.filter(t => t.status === "ongoing").length,
       completed: processedTrips.filter(t => t.status === "completed").length,
     }
@@ -337,11 +338,11 @@ export default function TripAnalytics() {
               <div className="flex items-center">
                 <Calendar className="w-8 h-8 text-orange-600 mr-3" />
                 <div>
-                  <div className="font-medium">Planning</div>
+                  <div className="font-medium">Upcoming</div>
                   <div className="text-sm text-muted-foreground">In preparation</div>
                 </div>
               </div>
-              <div className="text-2xl font-bold text-orange-700">{formatNumber.format(tripsByStatus.planning)}</div>
+              <div className="text-2xl font-bold text-orange-700">{formatNumber.format(tripsByStatus.upcoming)}</div>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border">
@@ -537,6 +538,17 @@ export default function TripAnalytics() {
                                   <Clock className="w-4 h-4 mr-2" />
                                 )}
                                 Mark Ongoing
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleChangeStatus(trip, 'upcoming')}
+                                disabled={updatingTripId === trip.id}
+                              >
+                                {updatingTripId === trip.id ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Calendar className="w-4 h-4 mr-2" />
+                                )}
+                                Mark Upcoming
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => handleChangeStatus(trip, 'planning')}

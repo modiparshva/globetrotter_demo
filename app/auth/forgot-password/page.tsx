@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Globe, Mail, ArrowLeft, CheckCircle } from "lucide-react"
+import { Globe, Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react"
+import { account } from "@/lib/appwrite"
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("")
@@ -28,15 +29,33 @@ export default function ForgotPassword() {
       return
     }
 
-    try {
-      // Simulate API call
-      console.log("Sending password reset email to:", email)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
+      setIsLoading(false)
+      return
+    }
 
+    try {
+      // Use Appwrite's password recovery function
+      await account.createRecovery(
+        email,
+        `${window.location.origin}/auth/reset-password` // Recovery URL
+      )
+      
       setIsSubmitted(true)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Password reset error:", error)
-      setError("An error occurred. Please try again.")
+      
+      // Handle specific Appwrite errors
+      if (error.code === 404) {
+        setError("No account found with this email address")
+      } else if (error.code === 429) {
+        setError("Too many requests. Please wait before trying again")
+      } else {
+        setError("Failed to send reset email. Please try again")
+      }
     } finally {
       setIsLoading(false)
     }
@@ -60,14 +79,50 @@ export default function ForgotPassword() {
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
               <p className="text-muted-foreground mb-6">
-                We've sent a password reset link to <strong>{email}</strong>
+                We've sent a password reset link to <strong>{email}</strong>. 
+                Click the link in the email to reset your password.
               </p>
               <p className="text-sm text-muted-foreground mb-6">
-                Didn't receive the email? Check your spam folder or try again.
+                Didn't receive the email? Check your spam folder or request a new reset link.
               </p>
               <div className="space-y-3">
-                <Button onClick={() => setIsSubmitted(false)} className="w-full" variant="outline">
-                  Try Different Email
+                <Button 
+                  onClick={() => {
+                    setIsSubmitted(false)
+                    setEmail("")
+                    setError("")
+                  }} 
+                  className="w-full" 
+                  variant="outline"
+                >
+                  Send to Different Email
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    setIsLoading(true)
+                    try {
+                      await account.createRecovery(
+                        email,
+                        `${window.location.origin}/auth/reset-password`
+                      )
+                    } catch (error) {
+                      console.error("Resend error:", error)
+                    } finally {
+                      setIsLoading(false)
+                    }
+                  }}
+                  className="w-full"
+                  variant="outline"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Resending...
+                    </>
+                  ) : (
+                    "Resend Reset Link"
+                  )}
                 </Button>
                 <Link href="/auth/signin">
                   <Button className="w-full bg-gradient-to-r from-blue-600 to-orange-500">Back to Sign In</Button>
@@ -128,7 +183,14 @@ export default function ForgotPassword() {
                 className="w-full bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
                 disabled={isLoading}
               >
-                {isLoading ? "Sending Reset Link..." : "Send Reset Link"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending Reset Link...
+                  </>
+                ) : (
+                  "Send Reset Link"
+                )}
               </Button>
             </form>
 

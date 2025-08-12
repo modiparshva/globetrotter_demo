@@ -115,6 +115,39 @@ export class AuthService {
       return false;
     }
   }
+
+  // Password recovery - send reset email
+  async sendPasswordReset(email: string, resetUrl: string) {
+    try {
+      await account.createRecovery(email, resetUrl);
+      return { success: true };
+    } catch (error) {
+      console.error('Error sending password reset:', error);
+      throw error;
+    }
+  }
+
+  // Password recovery - complete reset with new password
+  async completePasswordReset(userId: string, secret: string, password: string, confirmPassword: string) {
+    try {
+      await account.updateRecovery(userId, secret, password);
+      return { success: true };
+    } catch (error) {
+      console.error('Error completing password reset:', error);
+      throw error;
+    }
+  }
+
+  // Change password for authenticated user
+  async changePassword(oldPassword: string, newPassword: string) {
+    try {
+      await account.updatePassword(newPassword, oldPassword);
+      return { success: true };
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw error;
+    }
+  }
 }
 
 export const authService = new AuthService();

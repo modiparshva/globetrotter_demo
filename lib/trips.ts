@@ -10,7 +10,7 @@ export interface Trip {
   startDate: string;
   endDate: string;
   budget: number;
-  status: 'planning' | 'ongoing' | 'completed';
+  status: 'planning' | 'upcoming' | 'ongoing' | 'completed';
   image?: string;
   $createdAt: string;
   $updatedAt: string;

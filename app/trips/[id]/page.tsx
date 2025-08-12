@@ -342,7 +342,7 @@ export default function TripDetails() {
       case 'completed':
         return 'secondary'
       case 'ongoing':
-        return 'default'
+        return 'primary'
       case 'upcoming':
       case 'planning':
         return 'outline'

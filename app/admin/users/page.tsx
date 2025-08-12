@@ -48,7 +48,6 @@ import {
   Phone
 } from "lucide-react"
 import { useAdminStats, useAdminUsers } from "@/hooks/use-admin"
-import { AuthService } from "@/lib/auth"
 import { databases, DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/appwrite"
 import { toast } from "sonner"
 
@@ -67,7 +66,7 @@ export default function UserManagement() {
   const { data: allUsers, isLoading: isLoadingUsers, refetch: refetchUsers } = useAdminUsers()
   
   // Create auth service instance
-  const authService = new AuthService()
+  // const authService = new AuthService()
 
   // INR formatter
   const formatINR = useMemo(() => 

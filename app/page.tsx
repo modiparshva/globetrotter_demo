@@ -2,461 +2,386 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import {
-  Calendar,
-  MapPin,
-  Plus,
-  Search,
-  TrendingUp,
-  Users,
-  Wallet,
-  Plane,
-  Clock,
-  Star,
   Globe,
+  MapPin,
+  Calendar,
+  Users,
+  Star,
+  Plane,
   Camera,
   Heart,
+  TrendingUp,
+  ArrowRight,
+  Check,
+  Play,
+  Sparkles,
+  Mountain,
+  Waves,
+  Sun,
+  Quote,
 } from "lucide-react"
 import Link from "next/link"
 
-// Mock data for demonstration
-const upcomingTrips = [
-  {
-    id: 1,
-    destination: "Tokyo, Japan",
-    dates: "Dec 15-22, 2024",
-    budget: 2800,
-    spent: 1200,
-    image: "/tokyo-skyline-night.png",
-    status: "Planning",
-    stops: 3,
-  },
-  {
-    id: 2,
-    destination: "Paris, France",
-    dates: "Jan 10-17, 2025",
-    budget: 3200,
-    spent: 800,
-    image: "/paris-eiffel-tower.png",
-    status: "Booked",
-    stops: 2,
-  },
-]
+// Animated counter hook
+const useCountUp = (end: number, duration: number = 2000) => {
+  const [count, setCount] = useState(0)
 
-const popularDestinations = [
-  {
-    name: "Bali, Indonesia",
-    image: "/bali-temple.png",
-    avgBudget: "$1,200",
-    rating: 4.8,
-    travelers: "2.3k",
-  },
-  {
-    name: "Santorini, Greece",
-    image: "/santorini-sunset.png",
-    avgBudget: "$2,100",
-    rating: 4.9,
-    travelers: "1.8k",
-  },
-  {
-    name: "Dubai, UAE",
-    image: "/dubai-skyline.png",
-    avgBudget: "$2,800",
-    rating: 4.7,
-    travelers: "3.1k",
-  },
-  {
-    name: "Iceland",
-    image: "/iceland-northern-lights.png",
-    avgBudget: "$2,400",
-    rating: 4.9,
-    travelers: "1.2k",
-  },
-]
+  useEffect(() => {
+    let startTime: number
+    let animationFrame: number
 
-const recentActivities = [
-  {
-    user: "Sarah M.",
-    action: "shared her Tokyo itinerary",
-    time: "2 hours ago",
-    avatar: "/woman-profile.png",
-  },
-  {
-    user: "Mike R.",
-    action: "completed trip to Barcelona",
-    time: "1 day ago",
-    avatar: "/man-profile.png",
-  },
-  {
-    user: "Emma L.",
-    action: "added 5 activities to Rome trip",
-    time: "2 days ago",
-    avatar: "/woman-profile-two.png",
-  },
-]
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime
+      const progress = Math.min((currentTime - startTime) / duration, 1)
+      
+      setCount(Math.floor(progress * end))
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate)
+      }
+    }
 
-export default function Dashboard() {
-  const [searchQuery, setSearchQuery] = useState("")
-  // const router = useRouter()
+    animationFrame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationFrame)
+  }, [end, duration])
 
-  // useEffect(() => {
-  //   // Redirect to dashboard on home page access
-  //   router.push("/dashboard")
-  // }, [router])
+  return count
+}
+
+// Floating animation component
+const FloatingElement = ({ children, delay = 0, className = "" }: any) => {
+  return (
+    <div 
+      className={`animate-float ${className}`}
+      style={{ 
+        animationDelay: `${delay}s`,
+        animationDuration: '6s',
+        animationIterationCount: 'infinite',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+export default function LandingPage() {
+  const router = useRouter()
+  const [isVisible, setIsVisible] = useState(false)
+  const [currentTestimonial, setCurrentTestimonial] = useState(0)
+
+  const tripCount = useCountUp(12500)
+  const userCount = useCountUp(8900)
+  const destinationCount = useCountUp(195)
+
+  useEffect(() => {
+    setIsVisible(true)
+    
+    // Testimonial rotation
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+    
+    return () => clearInterval(interval)
+  }, [])
+
+  const features = [
+    {
+      icon: Globe,
+      title: "Global Destinations",
+      description: "Explore 195+ countries with personalized recommendations"
+    },
+    {
+      icon: Calendar,
+      title: "Smart Planning",
+      description: "Itinerary suggestions and scheduling"
+    },
+    {
+      icon: Users,
+      title: "Travel Community",
+      description: "Connect with fellow travelers and share experiences"
+    },
+    {
+      icon: TrendingUp,
+      title: "Budget Tracking",
+      description: "Real-time expense tracking and budget optimization"
+    }
+  ]
+
+  const destinations = [
+    {
+      name: "Tokyo, Japan",
+      image: "/tokyo-skyline-night.png",
+      rating: 4.9,
+      trips: "2.3k",
+      tag: "Cultural"
+    },
+    {
+      name: "Santorini, Greece",
+      image: "/santorini-sunset.png",
+      rating: 4.8,
+      trips: "1.8k",
+      tag: "Romantic"
+    },
+    {
+      name: "Bali, Indonesia",
+      image: "/bali-temple.png",
+      rating: 4.7,
+      trips: "3.1k",
+      tag: "Adventure"
+    }
+  ]
+
+  const testimonials = [
+    {
+      text: "GlobeTrotter made planning my dream trip to India effortless. The suggestions were spot-on!",
+      author: "Sarah Chen",
+      role: "Digital Nomad",
+      avatar: "/woman-profile.png"
+    },
+    {
+      text: "The budget tracking feature saved me hundreds of dollars. I knew exactly where my money was going.",
+      author: "Mike Rodriguez", 
+      role: "Travel Blogger",
+      avatar: "/man-profile.png"
+    },
+    {
+      text: "I've connected with amazing travelers through the community. It's like having local friends everywhere!",
+      author: "Emma Thompson",
+      role: "Adventure Seeker", 
+      avatar: "/woman-profile-two.png"
+    }
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-orange-500 rounded-xl flex items-center justify-center">
-                <Globe className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
-                  GlobeTrotter
-                </h1>
-                <p className="text-sm text-muted-foreground">Your journey starts here</p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 overflow-hidden">
+      {/* Floating Background Elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <FloatingElement delay={0} className="absolute top-20 left-10 text-blue-200 opacity-50">
+          <Plane className="w-8 h-8" />
+        </FloatingElement>
+        <FloatingElement delay={1} className="absolute top-40 right-20 text-orange-200 opacity-50">
+          <Mountain className="w-12 h-12" />
+        </FloatingElement>
+        <FloatingElement delay={2} className="absolute bottom-40 left-20 text-blue-300 opacity-50">
+          <Waves className="w-10 h-10" />
+        </FloatingElement>
+        <FloatingElement delay={3} className="absolute bottom-20 right-10 text-yellow-300 opacity-50">
+          <Sun className="w-8 h-8" />
+        </FloatingElement>
+      </div>
+
+      
+
+      {/* Hero Section */}
+      <section className="relative z-10 px-4 py-20">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-700 text-sm font-medium mb-8">
+              <Sparkles className="w-4 h-4 mr-2" />
+              #1 Travel Planning Platform
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+              Your Next
+              <span className="bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+                {" "}Adventure{" "}
+              </span>
+              Starts Here
+            </h1>
+            
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Plan extraordinary trips with recommendations, connect with travelers worldwide, 
+              and turn your wanderlust into unforgettable memories.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+              <Link href="/auth/signup">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white shadow-lg px-8 py-4 text-lg">
+                  Start Planning Now
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              
             </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search destinations..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-64"
-                />
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-blue-600 mb-2">
+                  {tripCount.toLocaleString()}+
+                </div>
+                <div className="text-gray-600">Trips Planned</div>
               </div>
-              <Avatar>
-                <AvatarImage src="/diverse-user-avatars.png" />
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-orange-500 mb-2">
+                  {userCount.toLocaleString()}+
+                </div>
+                <div className="text-gray-600">Happy Travelers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-green-600 mb-2">
+                  {destinationCount}+
+                </div>
+                <div className="text-gray-600">Countries</div>
+              </div>
             </div>
           </div>
         </div>
-      </header>
+      </section>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <section className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, John! ✈️</h2>
-              <p className="text-lg text-muted-foreground">
-                Ready to plan your next adventure? Let's make it unforgettable.
-              </p>
-            </div>
-            <Link href="/trips/create">
-              <Button
-                size="lg"
-                className="mt-4 md:mt-0 bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
+      {/* Features Section */}
+      <section className="relative z-10 px-4 py-20 bg-white/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Everything You Need to Plan the Perfect Trip
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              From initial inspiration to final memories, we've got every step of your journey covered.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className={`group transform transition-all duration-500 hover:scale-105 ${
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                }`}
+                style={{ transitionDelay: `${index * 200}ms` }}
               >
-                <Plus className="w-5 h-5 mr-2" />
-                Plan New Trip
+                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      
+
+      {/* Testimonials */}
+      <section className="relative z-10 px-4 py-20 bg-gradient-to-r from-blue-600 to-orange-500">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-16">
+            What Travelers Say About Us
+          </h2>
+
+          <div className="relative">
+            <Card className="border-0 shadow-2xl bg-white/10 backdrop-blur-sm text-white">
+              <CardContent className="p-8">
+                <Quote className="w-12 h-12 text-white/50 mx-auto mb-6" />
+                <p className="text-xl leading-relaxed mb-6">
+                  "{testimonials[currentTestimonial].text}"
+                </p>
+                <div className="flex items-center justify-center">
+                  <img 
+                    src={testimonials[currentTestimonial].avatar}
+                    alt={testimonials[currentTestimonial].author}
+                    className="w-12 h-12 rounded-full mr-4"
+                  />
+                  <div className="text-left">
+                    <div className="font-semibold">
+                      {testimonials[currentTestimonial].author}
+                    </div>
+                    <div className="text-white/70 text-sm">
+                      {testimonials[currentTestimonial].role}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Testimonial indicators */}
+            <div className="flex justify-center mt-8 space-x-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentTestimonial ? 'bg-white' : 'bg-white/30'
+                  }`}
+                  onClick={() => setCurrentTestimonial(index)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative z-10 px-4 py-20 bg-gray-900">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Ready to Start Your Adventure?
+          </h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Join thousands of travelers who trust GlobeTrotter to plan their perfect trips. 
+            Start planning your next adventure today.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/auth/signup">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white shadow-lg px-8 py-4 text-lg">
+                Get Started Free
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
+            
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100">Total Trips</p>
-                    <p className="text-2xl font-bold">12</p>
-                  </div>
-                  <Plane className="w-8 h-8 text-blue-200" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100">Countries Visited</p>
-                    <p className="text-2xl font-bold">8</p>
-                  </div>
-                  <Globe className="w-8 h-8 text-green-200" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-100">Total Budget</p>
-                    <p className="text-2xl font-bold">$6,000</p>
-                  </div>
-                  <Wallet className="w-8 h-8 text-orange-200" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100">Shared Plans</p>
-                    <p className="text-2xl font-bold">5</p>
-                  </div>
-                  <Users className="w-8 h-8 text-purple-200" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Upcoming Trips */}
-          <div className="lg:col-span-2 space-y-6">
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-semibold">Upcoming Trips</h3>
-                <Link href="/trips">
-                  <Button variant="outline" size="sm">
-                    View All
-                  </Button>
-                </Link>
-              </div>
-
-              <div className="space-y-4">
-                {upcomingTrips.map((trip) => (
-                  <Card key={trip.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="md:flex">
-                      <div className="md:w-1/3">
-                        <img
-                          src={trip.image || "/placeholder.svg"}
-                          alt={trip.destination}
-                          className="w-full h-48 md:h-full object-cover"
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="text-xl font-semibold mb-1">{trip.destination}</h4>
-                            <div className="flex items-center text-muted-foreground mb-2">
-                              <Calendar className="w-4 h-4 mr-1" />
-                              <span className="text-sm">{trip.dates}</span>
-                            </div>
-                            <div className="flex items-center text-muted-foreground">
-                              <MapPin className="w-4 h-4 mr-1" />
-                              <span className="text-sm">{trip.stops} stops planned</span>
-                            </div>
-                          </div>
-                          <Badge variant={trip.status === "Booked" ? "default" : "secondary"}>{trip.status}</Badge>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Budget Progress</span>
-                            <span>
-                              ${trip.spent} / ${trip.budget}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-gradient-to-r from-blue-500 to-orange-500 h-2 rounded-full"
-                              style={{ width: `${(trip.spent / trip.budget) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex space-x-2 mt-4">
-                          <Link href={`/trips/${trip.id}/itinerary`}>
-                            <Button size="sm" variant="outline">
-                              <Calendar className="w-4 h-4 mr-1" />
-                              Edit Itinerary
-                            </Button>
-                          </Link>
-                          <Button size="sm" variant="outline" onClick={() => alert("Share functionality coming soon!")}>
-                            <Users className="w-4 h-4 mr-1" />
-                            Share
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </section>
-
-            {/* Popular Destinations */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-semibold">Popular Destinations</h3>
-                <Button variant="outline" size="sm">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  View Trending
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {popularDestinations.map((destination, index) => (
-                  <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
-                    <div className="relative">
-                      <img
-                        src={destination.image || "/placeholder.svg"}
-                        alt={destination.name}
-                        className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 right-2">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold mb-2">{destination.name}</h4>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                          <span>{destination.rating}</span>
-                        </div>
-                        <span>{destination.travelers} travelers</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-medium text-green-600">{destination.avgBudget}</span>
-                        <Button size="sm" variant="outline">
-                          Explore
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {/* Right Column - Activity Feed & Quick Actions */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Quick Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Link href="/trips/create">
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Plan Weekend Getaway
-                  </Button>
-                </Link>
-                <Link href="/search/activities">
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
-                    <Search className="w-4 h-4 mr-2" />
-                    Discover Activities
-                  </Button>
-                </Link>
-                <Button
-                  className="w-full justify-start bg-transparent"
-                  variant="outline"
-                  onClick={() => alert("Feature coming soon!")}
-                >
-                  <Camera className="w-4 h-4 mr-2" />
-                  Browse Travel Photos
-                </Button>
-                <Button
-                  className="w-full justify-start bg-transparent"
-                  variant="outline"
-                  onClick={() => alert("Feature coming soon!")}
-                >
-                  <Users className="w-4 h-4 mr-2" />
-                  Join Travel Groups
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Budget Highlights */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Wallet className="w-5 h-5 mr-2" />
-                  Budget Highlights
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">This Month</span>
-                    <span className="font-semibold">$2,000</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Remaining Budget</span>
-                    <span className="font-semibold text-green-600">$4,000</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Avg. Trip Cost</span>
-                    <span className="font-semibold">$2,500</span>
-                  </div>
-                  <Button className="w-full mt-4 bg-transparent" variant="outline">
-                    View Budget Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Community Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="w-5 h-5 mr-2" />
-                  Community Activity
-                </CardTitle>
-                <CardDescription>See what fellow travelers are up to</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={activity.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {activity.user
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm">
-                          <span className="font-medium">{activity.user}</span> {activity.action}
-                        </p>
-                        <div className="flex items-center text-xs text-muted-foreground mt-1">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {activity.time}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button className="w-full mt-4 bg-transparent" variant="outline" size="sm">
-                  View All Activity
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="mt-8 flex items-center justify-center text-gray-400 text-sm">
+            <Check className="w-4 h-4 mr-2" />
+            Free to get started • No credit card required • Cancel anytime
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 px-4 py-12 bg-gray-900 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-orange-500 rounded-lg flex items-center justify-center">
+                <Globe className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-white">GlobeTrotter</span>
+            </div>
+            
+            <div className="text-gray-400 text-sm">
+              © 2024 GlobeTrotter. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Custom CSS for animations */}
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          33% { transform: translateY(-10px) rotate(2deg); }
+          66% { transform: translateY(5px) rotate(-2deg); }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   )
 }

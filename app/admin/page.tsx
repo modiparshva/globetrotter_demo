@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   const formatINR = useMemo(() => 
     new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "INR",
+      currency: "USD",
       maximumFractionDigits: 0,
     }), []
   )
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
       email: user.email,
       totalTrips: user.totalTrips,
       totalBudget: user.totalBudget,
-      status: user.status,
+      status: user.isActive ? "active" : "inactive",
     }))
   }, [allUsers])
 
@@ -348,7 +348,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">{region.totalTrips} trips</Badge>
-                    <div className="text-sm text-muted-foreground">₹{region.avgCostIndex}</div>
+                    <div className="text-sm text-muted-foreground">${region.avgCostIndex}</div>
                   </div>
                 </div>
               ))}

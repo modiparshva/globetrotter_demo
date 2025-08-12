@@ -55,11 +55,11 @@ export default function AdminLayout({
     signOut()
   }
 
-  // useEffect(() => {
-  //   if(!user?.isAdmin) {
-  //     router.replace('/');
-  //   }
-  // }, [user])
+  useEffect(() => {
+    if(user?.profile.isAdmin === false) {
+      router.replace('/');
+    }
+  }, [user])
 
   // Get user initials for avatar fallback
   const getUserInitials = (name: string) => {

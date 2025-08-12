@@ -48,6 +48,8 @@ import {
   Phone
 } from "lucide-react"
 import { useAdminStats, useAdminUsers } from "@/hooks/use-admin"
+import { AuthService } from "@/lib/auth"
+import { databases, DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/appwrite"
 import { toast } from "sonner"
 
 export default function UserManagement() {
@@ -57,10 +59,15 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [showUserDetails, setShowUserDetails] = useState(false)
   const [showEditUser, setShowEditUser] = useState(false)
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
 
   // Fetch real admin data
   const { data: stats, isLoading: isLoadingStats } = useAdminStats()
-  const { data: allUsers, isLoading: isLoadingUsers } = useAdminUsers()
+  const { data: allUsers, isLoading: isLoadingUsers, refetch: refetchUsers } = useAdminUsers()
+  
+  // Create auth service instance
+  const authService = new AuthService()
 
   // INR formatter
   const formatINR = useMemo(() => 
@@ -138,14 +145,50 @@ export default function UserManagement() {
     setShowEditUser(true)
   }
 
-  const handleActivateUser = (user: any) => {
-    // In a real implementation, this would call an API
-    toast.success(`User ${user.userName} has been activated`)
+  const handleActivateUser = async (user: any) => {
+    if (updatingUserId === user.userId) return // Prevent multiple calls
+    
+    setUpdatingUserId(user.userId)
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        user.userId,
+        { isActive: true }
+      )
+      toast.success(`User ${user.userName} has been activated`)
+      
+      // Refetch users data to get updated information
+      refetchUsers()
+    } catch (error) {
+      console.error('Error activating user:', error)
+      toast.error('Failed to activate user. Please try again.')
+    } finally {
+      setUpdatingUserId(null)
+    }
   }
 
-  const handleDeactivateUser = (user: any) => {
-    // In a real implementation, this would call an API
-    toast.success(`User ${user.userName} has been deactivated`)
+  const handleDeactivateUser = async (user: any) => {
+    if (updatingUserId === user.userId) return // Prevent multiple calls
+    
+    setUpdatingUserId(user.userId)
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        user.userId,
+        { isActive: false }
+      )
+      toast.success(`User ${user.userName} has been deactivated`)
+      
+      // Refetch users data to get updated information
+      refetchUsers()
+    } catch (error) {
+      console.error('Error deactivating user:', error)
+      toast.error('Failed to deactivate user. Please try again.')
+    } finally {
+      setUpdatingUserId(null)
+    }
   }
 
   const handleSendEmail = (user: any) => {
@@ -153,10 +196,27 @@ export default function UserManagement() {
     toast.success(`Email sent to ${user.email}`)
   }
 
-  const handleDeleteUser = (user: any) => {
+  const handleDeleteUser = async (user: any) => {
+    if (deletingUserId === user.userId) return // Prevent multiple calls
+    
     if (window.confirm(`Are you sure you want to delete user ${user.userName}? This action cannot be undone.`)) {
-      // In a real implementation, this would call an API
-      toast.success(`User ${user.userName} has been deleted`)
+      setDeletingUserId(user.userId)
+      try {
+        await databases.deleteDocument(
+          DATABASE_ID,
+          USERS_COLLECTION_ID,
+          user.userId
+        )
+        toast.success(`User ${user.userName} has been deleted`)
+        
+        // Refetch users data to get updated information
+        refetchUsers()
+      } catch (error) {
+        console.error('Error deleting user:', error)
+        toast.error('Failed to delete user. Please try again.')
+      } finally {
+        setDeletingUserId(null)
+      }
     }
   }
 
@@ -404,22 +464,41 @@ export default function UserManagement() {
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               {user.status === "active" ? (
-                                <DropdownMenuItem onClick={() => handleDeactivateUser(user)}>
-                                  <UserX className="w-4 h-4 mr-2" />
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeactivateUser(user)}
+                                  disabled={updatingUserId === user.userId}
+                                >
+                                  {updatingUserId === user.userId ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <UserX className="w-4 h-4 mr-2" />
+                                  )}
                                   Deactivate User
                                 </DropdownMenuItem>
                               ) : (
-                                <DropdownMenuItem onClick={() => handleActivateUser(user)}>
-                                  <UserCheck className="w-4 h-4 mr-2" />
+                                <DropdownMenuItem 
+                                  onClick={() => handleActivateUser(user)}
+                                  disabled={updatingUserId === user.userId}
+                                >
+                                  {updatingUserId === user.userId ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <UserCheck className="w-4 h-4 mr-2" />
+                                  )}
                                   Activate User
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
                                 onClick={() => handleDeleteUser(user)}
+                                disabled={deletingUserId === user.userId}
                                 className="text-red-600"
                               >
-                                <Ban className="w-4 h-4 mr-2" />
+                                {deletingUserId === user.userId ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Ban className="w-4 h-4 mr-2" />
+                                )}
                                 Delete User
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -591,13 +670,29 @@ export default function UserManagement() {
                   Edit User
                 </Button>
                 {selectedUser.status === "active" ? (
-                  <Button variant="outline" onClick={() => handleDeactivateUser(selectedUser)}>
-                    <UserX className="w-4 h-4 mr-2" />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleDeactivateUser(selectedUser)}
+                    disabled={updatingUserId === selectedUser.userId}
+                  >
+                    {updatingUserId === selectedUser.userId ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <UserX className="w-4 h-4 mr-2" />
+                    )}
                     Deactivate
                   </Button>
                 ) : (
-                  <Button variant="outline" onClick={() => handleActivateUser(selectedUser)}>
-                    <UserCheck className="w-4 h-4 mr-2" />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleActivateUser(selectedUser)}
+                    disabled={updatingUserId === selectedUser.userId}
+                  >
+                    {updatingUserId === selectedUser.userId ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <UserCheck className="w-4 h-4 mr-2" />
+                    )}
                     Activate
                   </Button>
                 )}

@@ -10,7 +10,8 @@ export interface User {
   city?: string;
   country?: string;
   profileImage?: string;
-  isAdmin?: boolean;
+  isAdmin: boolean;
+  isActive: boolean;
   $createdAt: string;
   $updatedAt: string;
 }

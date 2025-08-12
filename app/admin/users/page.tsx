@@ -84,7 +84,7 @@ export default function UserManagement() {
       email: user.email,
       totalTrips: user.totalTrips,
       totalBudget: user.totalBudget,
-      status: user.status,
+      status: user.isActive ? "active" : "inactive",
       lastActivity: user.totalTrips > 0 ? "Recently active" : "No recent activity",
     }))
   }, [allUsers])
@@ -359,7 +359,8 @@ export default function UserManagement() {
                       <TableCell>
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 text-muted-foreground mr-1" />
-                          <span className="font-medium">{formatINR.format(user.totalBudget)}</span>
+                          {/* <span className="font-medium">{formatINR.format(user.totalBudget)}</span> */}
+                          <span className="font-medium">{user.totalBudget}</span>
                         </div>
                       </TableCell>
                       <TableCell>

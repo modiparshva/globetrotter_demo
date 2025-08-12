@@ -103,12 +103,14 @@ export function Navigation() {
                       Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  { user.profile.isAdmin &&
+                    <DropdownMenuItem asChild>
                     <Link href="/admin">
                       <LayoutDashboardIcon className="mr-2 h-4 w-4" />
                       Admin
                     </Link>
                   </DropdownMenuItem>
+                  }
                   <DropdownMenuItem asChild>
                     <Link href="/profile">
                       <Settings className="mr-2 h-4 w-4" />

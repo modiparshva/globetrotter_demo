@@ -116,18 +116,18 @@ export default function TripItinerary() {
       const cityDetails = findCityById(cityIdFromQuery)
       if (cityDetails) {
         setSelectedCity(cityDetails)
-        console.log('🏙️ City Details:', {
-          id: cityDetails.id,
-          name: cityDetails.name,
-          country: cityDetails.country,
-          region: cityDetails.region,
-          description: cityDetails.description,
-          costIndex: cityDetails.costIndex,
-          popularityScore: cityDetails.popularityScore,
-          rating: cityDetails.rating,
-          travelers: cityDetails.travelers,
-          imageUrl: cityDetails.imageUrl
-        })
+        // console.log('🏙️ City Details:', {
+        //   id: cityDetails.id,
+        //   name: cityDetails.name,
+        //   country: cityDetails.country,
+        //   region: cityDetails.region,
+        //   description: cityDetails.description,
+        //   costIndex: cityDetails.costIndex,
+        //   popularityScore: cityDetails.popularityScore,
+        //   rating: cityDetails.rating,
+        //   travelers: cityDetails.travelers,
+        //   imageUrl: cityDetails.imageUrl
+        // })
       } else {
         console.log('❌ City not found with ID:', cityIdFromQuery)
       }

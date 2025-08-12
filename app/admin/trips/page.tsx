@@ -50,6 +50,7 @@ import {
   UserCheck
 } from "lucide-react"
 import { useAdminStats, useAdminTrips } from '@/hooks/use-admin'
+import { tripService } from '@/lib/trips'
 import { toast } from "sonner"
 
 export default function TripAnalytics() {
@@ -59,10 +60,11 @@ export default function TripAnalytics() {
   const [selectedTrip, setSelectedTrip] = useState<any>(null)
   const [showTripDetails, setShowTripDetails] = useState(false)
   const [showEditTrip, setShowEditTrip] = useState(false)
+  const [updatingTripId, setUpdatingTripId] = useState<string | null>(null)
 
   // Fetch real admin data
   const { data: stats, isLoading: isLoadingStats } = useAdminStats()
-  const { data: allTrips, isLoading: isLoadingTrips } = useAdminTrips()
+  const { data: allTrips, isLoading: isLoadingTrips, refetch: refetchTrips } = useAdminTrips()
 
   // INR formatter
   const formatINR = useMemo(() => 
@@ -124,9 +126,22 @@ export default function TripAnalytics() {
     }
   }
 
-  const handleChangeStatus = (trip: any, newStatus: string) => {
-    // In a real implementation, this would call an API
-    toast.success(`Trip "${trip.name}" status changed to ${newStatus}`)
+  const handleChangeStatus = async (trip: any, newStatus: 'planning' | 'ongoing' | 'completed') => {
+    if (updatingTripId === trip.id) return // Prevent multiple calls
+    
+    setUpdatingTripId(trip.id)
+    try {
+      await tripService.updateTrip(trip.id, { status: newStatus })
+      toast.success(`Trip "${trip.name}" status changed to ${newStatus}`)
+      
+      // Refetch the trips data to get updated information
+      refetchTrips()
+    } catch (error) {
+      console.error('Error updating trip status:', error)
+      toast.error('Failed to update trip status. Please try again.')
+    } finally {
+      setUpdatingTripId(null)
+    }
   }
 
   const filteredTrips = useMemo(() => {
@@ -501,13 +516,38 @@ export default function TripAnalytics() {
                                 Download Data
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleChangeStatus(trip, 'completed')}>
-                                <CheckCircle className="w-4 h-4 mr-2" />
+                              <DropdownMenuItem 
+                                onClick={() => handleChangeStatus(trip, 'completed')}
+                                disabled={updatingTripId === trip.id}
+                              >
+                                {updatingTripId === trip.id ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                )}
                                 Mark Completed
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleChangeStatus(trip, 'ongoing')}>
-                                <Clock className="w-4 h-4 mr-2" />
+                              <DropdownMenuItem 
+                                onClick={() => handleChangeStatus(trip, 'ongoing')}
+                                disabled={updatingTripId === trip.id}
+                              >
+                                {updatingTripId === trip.id ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Clock className="w-4 h-4 mr-2" />
+                                )}
                                 Mark Ongoing
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleChangeStatus(trip, 'planning')}
+                                disabled={updatingTripId === trip.id}
+                              >
+                                {updatingTripId === trip.id ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <AlertCircle className="w-4 h-4 mr-2" />
+                                )}
+                                Mark Planning
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 

@@ -48,10 +48,9 @@ const internationalCities: City[] = [
 export default function CitySearch() {
   const router = useRouter();
   const { user } = useAuth();
-  
+
   // State management
   const [allCities, setAllCities] = useState<City[]>([])
-  const [featuredDestinations, setFeaturedDestinations] = useState<City[]>([])
   const [userTrips, setUserTrips] = useState<Trip[]>([])
   const [isTripsDialogOpen, setIsTripsDialogOpen] = useState(false)
   const [selectedCity, setSelectedCity] = useState<City | null>(null)
@@ -61,9 +60,15 @@ export default function CitySearch() {
   const [selectedRegion, setSelectedRegion] = useState<string | undefined>("")
   const [filteredCities, setFilteredCities] = useState<City[]>([])
   const [totalCitiesCount, setTotalCitiesCount] = useState(0)
+  const [cityId, setCityId] = useState<string | null>(null)
 
+  useEffect(() => {
+  }, [])
   // Initialize cities on component mount
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const cityIdFromQuery = searchParams.get('cityId')
+    setCityId(cityIdFromQuery)
     // Debug the data loading
     const debugInfo = debugCityData();
     console.log("🔍 Debug Info:", debugInfo);
@@ -81,14 +86,8 @@ export default function CitySearch() {
     setAllCities(combinedCities);
     setTotalCitiesCount(combinedCities.length);
 
-    // Set featured destinations (top Indian heritage cities + some international)
-    const featuredCities = [
-      ...indianFeaturedCities.slice(0, 2), // Top 2 Indian heritage cities
-      ...internationalCities.slice(0, 1)   // 1 international city
-    ];
-    setFeaturedDestinations(featuredCities);
 
-    console.log("✨ Featured cities set:", featuredCities.length);
+
   }, []);
 
   // Function to add new city (can be called from other parts of the app)
@@ -102,17 +101,14 @@ export default function CitySearch() {
     setAllCities(prev => [cityWithId, ...prev]) // Add to beginning to show new cities first
     setTotalCitiesCount(prev => prev + 1)
 
-    // Update featured destinations if it's a high-rating city
-    if (newCity.rating >= 4.5) {
-      setFeaturedDestinations(prev => [cityWithId, ...prev.slice(0, 2)]) // Keep top 3
-    }
+
   }
 
   // Function to update city popularity (simulating real-time updates)
   const updateCityPopularity = (cityId: number, newPopularity: number) => {
-    setAllCities(prev => 
-      prev.map(city => 
-        city.id === cityId 
+    setAllCities(prev =>
+      prev.map(city =>
+        city.id === cityId
           ? { ...city, popularityScore: newPopularity }
           : city
       )
@@ -122,7 +118,7 @@ export default function CitySearch() {
   // Function to fetch user trips
   const fetchUserTrips = async () => {
     if (!user) return;
-    
+
     setIsLoadingTrips(true);
     try {
       const trips = await tripService.getUserTrips(user.account.$id);
@@ -144,13 +140,13 @@ export default function CitySearch() {
   // Function to add city to selected trip
   const addCityToTrip = (tripId: string) => {
     if (!selectedCity) return;
-    
+
     console.log('Adding city to trip:', {
       cityId: selectedCity.id,
       cityName: selectedCity.name,
       tripId: tripId
     });
-    
+
     // Navigate to trip itinerary with city ID as query parameter
     router.push(`/trips/${tripId}/itinerary?cityId=${selectedCity.id}`);
     setIsTripsDialogOpen(false);
@@ -170,7 +166,7 @@ export default function CitySearch() {
         .filter(Boolean) // Remove undefined/null values
     ));
 
-    const regionList = extractedRegions.length > 0 
+    const regionList = extractedRegions.length > 0
       ? extractedRegions.sort()
       : ["Asia", "Europe", "North America", "South America", "Africa", "Oceania"];
 
@@ -224,7 +220,7 @@ export default function CitySearch() {
     const demoCities = [
       {
         name: "Jaipur",
-        country: "India", 
+        country: "India",
         costIndex: 85,
         popularityScore: 88,
         imageUrl: "https://images.unsplash.com/photo-1574928817088-a34dd2e0ec8a?w=400&h=300&fit=crop&crop=center",
@@ -269,67 +265,13 @@ export default function CitySearch() {
               <Globe className="w-4 h-4 mr-1" />
               <span>{totalCitiesCount} destinations</span>
             </div>
-            
+
           </div>
         </div>
 
-        
 
-        {/* Featured Cities */}
-        {featuredDestinations.length > 0 && (
-          <div className="max-w-6xl mx-auto mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">✨ Featured Heritage Destinations</h3>
-              <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-                Most Visited
-              </Badge>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {featuredDestinations.map((city) => {
-                const costLevel = getCostLevel(city.costIndex);
-                return (
-                  <Card key={`featured-${city.id}`} className="overflow-hidden hover:shadow-lg transition-shadow border-orange-200">
-                    <div className="relative">
-                      <img
-                        src={city.imageUrl}
-                        alt={city.name}
-                        className="w-full h-32 object-cover"
-                        onError={(e) => {
-                          console.log(`Failed to load image for ${city.name}`);
-                          (e.target as HTMLImageElement).src = "/placeholder.jpg";
-                        }}
-                      />
-                      <div className="absolute top-2 right-2">
-                        <Badge className="bg-orange-500 text-white">Featured</Badge>
-                      </div>
-                      <div className="absolute top-2 left-2">
-                        <Badge className={costLevel.color}>{costLevel.label}</Badge>
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-semibold">{city.name}</h4>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <MapPin className="w-3 h-3 mr-1" />
-                            {city.country}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center text-sm">
-                            <Star className="w-3 h-3 text-yellow-500 mr-1" />
-                            {city.rating}
-                          </div>
-                          <div className="text-xs text-muted-foreground">{city.travelers}</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
+
+
 
         {/* Search and Filters */}
         <div className="max-w-4xl mx-auto mb-8">
@@ -414,11 +356,10 @@ export default function CitySearch() {
               {filteredCities.map((city) => {
                 const costLevel = getCostLevel(city.costIndex);
                 return (
-                  <Card 
-                    key={city.id} 
-                    className={`overflow-hidden hover:shadow-lg transition-shadow ${
-                      city.isNew ? 'border-green-300 shadow-md' : ''
-                    }`}
+                  <Card
+                    key={city.id}
+                    className={`overflow-hidden hover:shadow-lg transition-shadow ${city.isNew ? 'border-green-300 shadow-md' : ''
+                      }`}
                   >
                     <div className="relative">
                       <img
@@ -475,7 +416,7 @@ export default function CitySearch() {
                           <Plus className="w-3 h-3 mr-1" />
                           Add to Trip
                         </Button>
-                        
+
                       </div>
                     </CardContent>
                   </Card>
@@ -495,7 +436,7 @@ export default function CitySearch() {
               Select a trip to add {selectedCity?.name} to your itinerary.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="mt-4">
             {isLoadingTrips ? (
               <div className="text-center py-8">
@@ -505,7 +446,7 @@ export default function CitySearch() {
             ) : userTrips.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500 mb-4">You don't have any trips yet.</p>
-                <Button 
+                <Button
                   onClick={() => router.push('/trips/create')}
                   className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600"
                 >
@@ -515,8 +456,8 @@ export default function CitySearch() {
             ) : (
               <div className="space-y-3 max-h-[300px] overflow-y-auto">
                 {userTrips.map((trip) => (
-                  <Card 
-                    key={trip.$id} 
+                  <Card
+                    key={trip.$id}
                     className="cursor-pointer hover:bg-gray-50 transition-colors"
                     onClick={() => addCityToTrip(trip.$id)}
                   >
@@ -536,7 +477,7 @@ export default function CitySearch() {
                             </div>
                           </div>
                         </div>
-                        <Badge 
+                        <Badge
                           variant={trip.status === 'ongoing' ? 'default' : trip.status === 'completed' ? 'secondary' : 'outline'}
                           className="ml-2"
                         >

@@ -290,11 +290,11 @@ export default function CitiesAnalytics() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Destination</TableHead>
-                  <TableHead>Trips</TableHead>
-                  <TableHead>Total Budget</TableHead>
+                  {/* <TableHead>Trips</TableHead> */}
+                  {/* <TableHead>Total Budget</TableHead> */}
                   <TableHead>Rating</TableHead>
                   <TableHead>Popularity</TableHead>
-                  <TableHead>Actions</TableHead>
+                  {/* <TableHead>Actions</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -321,18 +321,18 @@ export default function CitiesAnalytics() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <div className="flex items-center">
                           <Users className="w-4 h-4 text-muted-foreground mr-1" />
                           <span className="font-medium">{formatNumber.format(destination.totalTrips)}</span>
                         </div>
-                      </TableCell>
-                      <TableCell>
+                      </TableCell> */}
+                      {/* <TableCell>
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 text-muted-foreground mr-1" />
-                          <span className="font-medium">{formatINR.format(destination.totalBudget)}</span>
+                          <span className="font-medium">{destination.totalBudget}</span>
                         </div>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className="flex items-center">
                           <Star className="w-4 h-4 text-yellow-500 mr-1" />
@@ -347,7 +347,7 @@ export default function CitiesAnalytics() {
                           <span className="text-sm text-muted-foreground">{destination.popularity}%</span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <div className="flex items-center gap-2">
                           <Button variant="outline" size="sm">
                             <Eye className="w-4 h-4" />
@@ -356,7 +356,7 @@ export default function CitiesAnalytics() {
                             <Edit className="w-4 h-4" />
                           </Button>
                         </div>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))
                 )}

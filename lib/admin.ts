@@ -19,6 +19,8 @@ export interface AdminUser {
   totalTrips: number
   totalBudget: number
   status: 'active' | 'inactive'
+  isActive: boolean
+  isAdmin: boolean
   $createdAt: string
 }
 
@@ -123,6 +125,8 @@ export class AdminService {
           totalTrips,
           totalBudget,
           status: totalTrips > 0 ? 'active' : 'inactive',
+          isAdmin: user.isAdmin,
+          isActive: user.isActive,
           $createdAt: user.$createdAt,
         };
       });

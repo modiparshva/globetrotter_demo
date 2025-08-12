@@ -1063,7 +1063,7 @@ export default function TripDetails() {
                       />
                     </div>
                   )}
-                  <Link href={`/trips/${tripId}/budget`}>
+                  <Link href={`/trips/${tripId}/expenses`}>
                     <Button className="w-full" variant="outline">
                       View Detailed Budget
                     </Button>

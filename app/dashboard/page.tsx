@@ -25,6 +25,7 @@ import Link from "next/link"
 import { useAuth } from "@/hooks/use-auth"
 import { useTrips } from "@/hooks/use-trips"
 import { getCities, getCommunityActivity } from "@/lib/data"
+import DestinationCarousel from "@/components/destination-carousel"
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -115,6 +116,19 @@ export default function Dashboard() {
               </Button>
             </Link>
           </div>
+
+          <section className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-semibold">Featured Destinations</h3>
+              <Link href="/search/cities">
+                <Button variant="outline" size="sm">
+                  <Globe className="w-4 h-4 mr-1" />
+                  Explore All
+                </Button>
+              </Link>
+            </div>
+            <DestinationCarousel />
+          </section>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -297,7 +311,7 @@ export default function Dashboard() {
                     </div>
                     <CardContent className="p-4">
                       <h4 className="font-semibold mb-2">
-                        {destination.name}, {destination.country}
+                        {destination.name}, {destination.country || "India"}
                       </h4>
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center">

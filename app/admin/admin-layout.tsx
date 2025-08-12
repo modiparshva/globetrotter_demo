@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -56,7 +56,7 @@ export default function AdminLayout({
   }
 
   useEffect(() => {
-    if(!user.isAdmin) {
+    if(!user?.isAdmin) {
       router.replace('/');
     }
   }, [user])

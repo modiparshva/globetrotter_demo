@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Globe, Menu, X, User, Settings, LogOut, Plus, Search, Map } from "lucide-react"
+import { Globe, Menu, X, User, Settings, LogOut, Plus, Search, Map, LayoutDashboardIcon } from "lucide-react"
 
 export function Navigation() {
   const { user, isLoading, isAuthenticated, signOut } = useAuth()
@@ -21,7 +21,7 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Don't show navigation on auth pages
-  if (pathname?.startsWith("/auth")) {
+  if (pathname?.startsWith("/auth") || pathname?.startsWith("/admin")) {
     return null
   }
 
@@ -101,6 +101,12 @@ export function Navigation() {
                     <Link href="/profile">
                       <User className="mr-2 h-4 w-4" />
                       Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <LayoutDashboardIcon className="mr-2 h-4 w-4" />
+                      Admin
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

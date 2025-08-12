@@ -275,7 +275,9 @@ export class TripService {
         throw new Error('Shared trip has expired');
       }
 
+      // Fetch basic trip details only
       const trip = await this.getTrip(sharedTrip.tripId);
+      
       return { sharedTrip, trip };
     } catch (error) {
       console.error('Error fetching shared trip:', error);

@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useTrip } from "@/hooks/use-trips"
-import { databases, DATABASE_ID, ACTIVITIES_COLLECTION_ID, EXPENSES_COLLECTION_ID, ITINERARY_COLLECTION_ID } from "@/lib/appwrite"
+import { tripService } from "@/lib/trips"
+import { databases, DATABASE_ID, ACTIVITIES_COLLECTION_ID, EXPENSES_COLLECTION_ID, ITINERARY_COLLECTION_ID, SHARED_TRIPS_COLLECTION_ID } from "@/lib/appwrite"
 import { Query } from "appwrite"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +15,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
 import {
   Calendar,
   MapPin,
@@ -40,7 +44,9 @@ import {
   Car,
   Home,
   ShoppingBag,
-  Plane
+  Plane,
+  Copy,
+  Check
 } from "lucide-react"
 import Link from "next/link"
 
@@ -129,12 +135,40 @@ export default function TripDetails() {
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Share functionality state
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [isCopied, setIsCopied] = useState(false)
+  const [isShared, setIsShared] = useState(false)
+  const [sharedTripToken, setSharedTripToken] = useState<string | null>(null)
+
   // Fetch all trip data
   useEffect(() => {
     if (tripId && user) {
       fetchTripData()
+      checkIfTripIsShared()
     }
   }, [tripId, user])
+
+  const checkIfTripIsShared = async () => {
+    try {
+      const sharedTrips = await databases.listDocuments(
+        DATABASE_ID,
+        SHARED_TRIPS_COLLECTION_ID,
+        [Query.equal('tripId', tripId), Query.equal('isActive', true)]
+      )
+      
+      if (sharedTrips.documents.length > 0) {
+        const sharedTrip = sharedTrips.documents[0]
+        setIsShared(true)
+        setSharedTripToken(sharedTrip.token)
+        setShareUrl(`${window.location.origin}/shared/${sharedTrip.token}`)
+      }
+    } catch (error) {
+      console.warn('Could not check share status:', error)
+    }
+  }
 
   const fetchTripData = async () => {
     try {
@@ -217,7 +251,7 @@ export default function TripDetails() {
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0)
     const totalActivitiesCost = activities.reduce((sum, activity) => sum + activity.cost, 0)
     const totalPlannedCost = totalExpenses + totalActivitiesCost
-    const remainingBudget = (trip?.budget || 0) - totalExpenses
+    const remainingBudget = (trip?.budget || 0) - totalExpenses - totalActivitiesCost
     const budgetUtilization = trip?.budget ? (totalExpenses / trip.budget) * 100 : 0
 
     // Activity calculations
@@ -329,6 +363,64 @@ export default function TripDetails() {
         return 'text-purple-600'
       default:
         return 'text-gray-600'
+    }
+  }
+
+  // Share functionality
+  const handleShareTrip = async () => {
+    if (isShared) {
+      // If already shared, just open the dialog to show the existing link
+      setIsShareDialogOpen(true)
+      return
+    }
+
+    setIsSharing(true)
+    try {
+      const sharedTrip = await tripService.shareTrip(tripId)
+      const shareUrl = `${window.location.origin}/shared/${sharedTrip.token}`
+      setShareUrl(shareUrl)
+      setIsShared(true)
+      setSharedTripToken(sharedTrip.token)
+      setIsShareDialogOpen(true)
+      toast.success('Trip shared successfully! Anyone with the link can view your trip.')
+    } catch (error) {
+      console.error('Error sharing trip:', error)
+      toast.error('Failed to share trip. Please try again.')
+    } finally {
+      setIsSharing(false)
+    }
+  }
+
+  const handleUnshareTrip = async () => {
+    if (!sharedTripToken) return
+
+    setIsSharing(true)
+    try {
+      await tripService.deactivateSharedTrip(sharedTripToken)
+      setIsShared(false)
+      setSharedTripToken(null)
+      setShareUrl(null)
+      setIsShareDialogOpen(false)
+      toast.success('Trip unshared successfully! The link is no longer accessible.')
+    } catch (error) {
+      console.error('Error unsharing trip:', error)
+      toast.error('Failed to unshare trip. Please try again.')
+    } finally {
+      setIsSharing(false)
+    }
+  }
+
+  const copyToClipboard = async () => {
+    if (shareUrl) {
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        setIsCopied(true)
+        toast.success('Link copied to clipboard!')
+        setTimeout(() => setIsCopied(false), 2000)
+      } catch (error) {
+        console.error('Failed to copy to clipboard:', error)
+        toast.error('Failed to copy link. Please copy it manually.')
+      }
     }
   }
 
@@ -448,9 +540,21 @@ export default function TripDetails() {
                 Edit
               </Button>
             </Link>
-            <Button variant="outline" size="sm">
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
+            <Button 
+              variant={isShared ? "default" : "outline"} 
+              size="sm"
+              onClick={handleShareTrip}
+              disabled={isSharing}
+              className={isShared ? "bg-green-600 hover:bg-green-700" : ""}
+            >
+              {isSharing ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : isShared ? (
+                <CheckCircle className="w-4 h-4 mr-2" />
+              ) : (
+                <Share2 className="w-4 h-4 mr-2" />
+              )}
+              {isSharing ? 'Processing...' : isShared ? 'Shared' : 'Share'}
             </Button>
           </div>
         </div>
@@ -1044,6 +1148,69 @@ export default function TripDetails() {
           </div>
         </div>
       </div>
+
+      {/* Share Dialog */}
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isShared ? 'Trip Shared' : 'Share Trip'}</DialogTitle>
+            <DialogDescription>
+              {isShared 
+                ? 'Your trip is currently shared. Anyone with this link can view your trip details.'
+                : 'Anyone with this link can view your trip details. The link doesn\'t expire.'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="link" className="sr-only">
+                Link
+              </Label>
+              <Input
+                id="link"
+                value={shareUrl || ''}
+                readOnly
+                className="font-mono text-sm"
+              />
+            </div>
+            <Button size="sm" className="px-3" onClick={copyToClipboard}>
+              <span className="sr-only">Copy</span>
+              {isCopied ? (
+                <Check className="h-4 w-4 text-green-600" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <div className="flex flex-col space-y-2 text-sm text-muted-foreground">
+            <p>✅ Trip details and itinerary</p>
+            <p>✅ Activities and expenses</p>
+            <p>✅ Photos and notes</p>
+            <p className="text-orange-600">⚠️ Anyone with this link can view your trip</p>
+          </div>
+          {isShared && (
+            <div className="pt-4 border-t">
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleUnshareTrip}
+                disabled={isSharing}
+                className="w-full"
+              >
+                {isSharing ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                )}
+                {isSharing ? 'Unsharing...' : 'Unshare Trip'}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                This will make the link inaccessible to others
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

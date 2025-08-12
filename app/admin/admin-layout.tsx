@@ -2,10 +2,19 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { 
   LayoutDashboard, 
   Users, 
@@ -17,8 +26,11 @@ import {
   X,
   Shield,
   BarChart3,
-  Globe
+  Globe,
+  User,
+  ChevronDown
 } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -35,6 +47,29 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+  
+
+  const handleLogout = () => {
+    signOut()
+  }
+
+  useEffect(() => {
+    if(!user.isAdmin) {
+      router.replace('/');
+    }
+  }, [user])
+
+  // Get user initials for avatar fallback
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,7 +111,7 @@ export default function AdminLayout({
         <div className="flex min-h-0 flex-1 flex-col bg-white shadow-lg">
           <div className="flex h-16 items-center px-6 border-b bg-gradient-to-r from-blue-600 to-orange-500">
             <Shield className="w-8 h-8 text-white mr-3" />
-            <span className="font-bold text-xl text-white">Indian Travel Admin</span>
+            <span className="font-bold text-xl text-white">GlobeTrotter Admin</span>
           </div>
           <div className="flex-1 overflow-y-auto">
             <nav className="p-4 space-y-2">
@@ -98,18 +133,40 @@ export default function AdminLayout({
           </div>
           <div className="flex-shrink-0 p-4 border-t">
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-blue-600">AD</span>
+              {user ? (
+                <>
+                  <div className="flex items-center">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.profile.profileImage || "/placeholder-user.jpg"} alt={`${user.profile.firstName} ${user.profile.lastName}`} />
+                      <AvatarFallback className="bg-blue-100 text-blue-700">
+                        {getUserInitials(`${user.profile.firstName} ${user.profile.lastName}`)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-700">{user.profile.firstName} {user.profile.lastName}</p>
+                      <p className="text-xs text-gray-500">{user.profile.email}</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" title="Logout" onClick={handleLogout}>
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-gray-400">--</span>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-500">Loading...</p>
+                      <p className="text-xs text-gray-400">Please wait</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" title="Logout" disabled>
+                    <LogOut className="w-4 h-4" />
+                  </Button>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700">Admin User</p>
-                  <p className="text-xs text-gray-500">admin@example.com</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" title="Logout">
-                <LogOut className="w-4 h-4" />
-              </Button>
+              )}
             </div>
           </div>
         </div>
@@ -145,6 +202,53 @@ export default function AdminLayout({
                   View Live Site
                 </Button>
               </Link>
+              
+              {/* User Profile Dropdown */}
+              {user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2 h-8 px-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.profile.profileImage || "/placeholder-user.jpg"} alt={`${user.profile.firstName} ${user.profile.lastName}`} />
+                        <AvatarFallback className="bg-blue-100 text-blue-700">
+                          {getUserInitials(`${user.profile.firstName} ${user.profile.lastName}`)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="hidden sm:flex sm:flex-col sm:items-start">
+                        <span className="text-sm font-medium text-gray-900">{user.profile.firstName} {user.profile.lastName}</span>
+                        <span className="text-xs text-gray-500">{user.profile.email}</span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.profile.firstName} {user.profile.lastName}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user.profile.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           </div>
         </div>

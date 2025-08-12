@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useTrip } from "@/hooks/use-trips"
 import { databases, DATABASE_ID, ITINERARY_COLLECTION_ID, ACTIVITIES_COLLECTION_ID } from "@/lib/appwrite"
 import { ID, Query } from "appwrite"
+import { indianHeritageCities, indianFeaturedCities, type City } from "@/lib/city_data"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -84,11 +85,59 @@ export default function TripItinerary() {
   const { user } = useAuth()
   const tripId = params.id as string
   const { trip, isLoadingTrip } = useTrip(tripId)
+  const [ cityId, setCityId ] = useState<string | null>(null)
+  const [ selectedCity, setSelectedCity ] = useState<City | null>(null)
+
+  // Check for cityId query parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const cityIdFromQuery = searchParams.get('cityId')
+    setCityId(cityIdFromQuery)
+    
+    if (cityIdFromQuery) {
+      console.log('City ID from search/cities page:', cityIdFromQuery)
+      
+      // Function to find city by ID from all available cities
+      const findCityById = (id: string): City | null => {
+        const numericId = parseInt(id)
+        
+        // Search in Indian heritage cities
+        const heritageCity = indianHeritageCities.find(city => city.id === numericId)
+        if (heritageCity) return heritageCity
+        
+        // Search in Indian featured cities
+        const featuredCity = indianFeaturedCities.find(city => city.id === numericId)
+        if (featuredCity) return featuredCity
+        
+        // You can add more city arrays here if needed
+        return null
+      }
+      
+      const cityDetails = findCityById(cityIdFromQuery)
+      if (cityDetails) {
+        setSelectedCity(cityDetails)
+        console.log('🏙️ City Details:', {
+          id: cityDetails.id,
+          name: cityDetails.name,
+          country: cityDetails.country,
+          region: cityDetails.region,
+          description: cityDetails.description,
+          costIndex: cityDetails.costIndex,
+          popularityScore: cityDetails.popularityScore,
+          rating: cityDetails.rating,
+          travelers: cityDetails.travelers,
+          imageUrl: cityDetails.imageUrl
+        })
+      } else {
+        console.log('❌ City not found with ID:', cityIdFromQuery)
+      }
+    }
+  }, [])
 
   const [itineraryStops, setItineraryStops] = useState<ItineraryStop[]>([])
   const [activities, setActivities] = useState<{ [stopId: string]: Activity[] }>({})
   const [isLoadingItinerary, setIsLoadingItinerary] = useState(true)
-  const [isAddingStop, setIsAddingStop] = useState(false)
+  const [isAddingStop, setIsAddingStop] = useState(selectedCity ? true : false)
   const [editingStop, setEditingStop] = useState<ItineraryStop | null>(null)
   const [deletingStopId, setDeletingStopId] = useState<string | null>(null)
   const [isAddingActivity, setIsAddingActivity] = useState<string | null>(null)
@@ -96,7 +145,7 @@ export default function TripItinerary() {
   const [deletingActivityId, setDeletingActivityId] = useState<string | null>(null)
 
   const [newStop, setNewStop] = useState({
-    destination: "",
+    destination: selectedCity?.name || "",
     startDate: "",
     endDate: "",
     budget: "",
@@ -123,6 +172,13 @@ export default function TripItinerary() {
       fetchItinerary()
     }
   }, [tripId])
+
+  useEffect(() => {
+    if (selectedCity && selectedCity.name){
+      setIsAddingStop(true);
+      setNewStop(prev => ({ ...prev, destination: selectedCity.name, notes: selectedCity.description }));
+    }
+  }, [selectedCity]);
 
   const fetchItinerary = async () => {
     try {

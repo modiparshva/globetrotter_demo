@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card"
@@ -11,6 +12,8 @@ import { Search, MapPin, Star, DollarSign, Plus, Filter, Globe, TrendingUp } fro
 // FIXED: Import from correct path - monumentsData not city_data
 import { indianHeritageCities, indianFeaturedCities, debugCityData, type City } from "@/lib/city_data"
 import EnhancedImage from "@/components/EnhancedImage"
+
+
 
 // Keep some international cities for variety (optional)
 const internationalCities: City[] = [
@@ -41,6 +44,7 @@ const internationalCities: City[] = [
 ]
 
 export default function CitySearch() {
+  const router = useRouter();
   // State management
   const [allCities, setAllCities] = useState<City[]>([])
   const [featuredDestinations, setFeaturedDestinations] = useState<City[]>([])
@@ -450,9 +454,7 @@ export default function CitySearch() {
                           <Plus className="w-3 h-3 mr-1" />
                           Add to Trip
                         </Button>
-                        <Button size="sm" variant="outline">
-                          Details
-                        </Button>
+                        
                       </div>
                     </CardContent>
                   </Card>

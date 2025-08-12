@@ -6,11 +6,11 @@ export interface ImageSource {
 }
 
 const LOCAL_IMAGE_CITIES = [
-  'Bhubaneswar', 'Dharwad', 'Bhopal', 'Bangalore',
-  'Jodhpur', 'Raigarh', 'Thrissur', 'Vadodara', 'Patna', 'Sarnath',
+  'Bhubaneswar', 'Dharwad', 'Bhopal', 'Banglore',
+  'Jodhpur', 'Raiganj', 'Thrissur', 'Vadodara', 'Patna', 'Sarnath',
   'Goa', 'Tiruchirappalli', 'Jhansi', 'Jabalpur', 'Guwahati',
   'Jaipur', 'Amaravati', 'Lucknow', 'Shimla', 'Kolkata', 'Chandigarh',
-  'Rajkot', 'Nagpur', 'Leh', 'Srinagar', 'Raipur'
+  'Rajkot', 'Nagpur', 'Leh', 'Srinagar', 'Raipur'
 ];
 
 export const WORKING_CITY_IMAGES: Record<string, ImageSource> = {

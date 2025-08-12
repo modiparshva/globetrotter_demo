@@ -341,11 +341,6 @@ export default function TripDetails() {
     switch (status) {
       case 'completed':
         return 'secondary'
-      case 'ongoing':
-        return 'primary'
-      case 'upcoming':
-      case 'planning':
-        return 'outline'
       default:
         return 'outline'
     }
